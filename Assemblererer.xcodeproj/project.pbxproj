@@ -11,6 +11,7 @@
 		01E72E8A224BDBC600F2D704 /* PartialVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E72E89224BDBC600F2D704 /* PartialVM.swift */; };
 		01E72E8C224BDC7A00F2D704 /* Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E72E8B224BDC7A00F2D704 /* Support.swift */; };
 		01E72E8E224BDC9800F2D704 /* Commands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E72E8D224BDC9800F2D704 /* Commands.swift */; };
+		01E72E90224C22BA00F2D704 /* FullVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E72E8F224C22BA00F2D704 /* FullVM.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -31,6 +32,7 @@
 		01E72E89224BDBC600F2D704 /* PartialVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartialVM.swift; sourceTree = "<group>"; };
 		01E72E8B224BDC7A00F2D704 /* Support.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Support.swift; sourceTree = "<group>"; };
 		01E72E8D224BDC9800F2D704 /* Commands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Commands.swift; sourceTree = "<group>"; };
+		01E72E8F224C22BA00F2D704 /* FullVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullVM.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,6 +66,7 @@
 			isa = PBXGroup;
 			children = (
 				01E72E82224BDB4900F2D704 /* main.swift */,
+				01E72E8F224C22BA00F2D704 /* FullVM.swift */,
 				01E72E89224BDBC600F2D704 /* PartialVM.swift */,
 				01E72E8B224BDC7A00F2D704 /* Support.swift */,
 				01E72E8D224BDC9800F2D704 /* Commands.swift */,
@@ -128,6 +131,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				01E72E90224C22BA00F2D704 /* FullVM.swift in Sources */,
 				01E72E8A224BDBC600F2D704 /* PartialVM.swift in Sources */,
 				01E72E83224BDB4900F2D704 /* main.swift in Sources */,
 				01E72E8C224BDC7A00F2D704 /* Support.swift in Sources */,
