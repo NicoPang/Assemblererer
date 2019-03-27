@@ -10,11 +10,14 @@ import Foundation
 
 class PartialVM {
     var registers: [Int] = Array<Int>(repeatElement(0, count: 10))
-    var symbols: [String: Int] = [:]
     var memory: [Int] = []
     var running = false
     var pointer = 0
     var compare = false
+    
+    func inputMemory(_ memory: [Int]) {
+        self.memory = memory
+    }
     
     func run() {
         self.running = true
@@ -136,13 +139,46 @@ class PartialVM {
         self.pointer += 3
     }
     func outcr() {
-        //incomplete, ID 45
+        guard self.pointer + 1 < self.memory.count else {
+            print("Not enough to complete function. Program terminated.")
+            self.running = false
+            return
+        }
+        guard validRegister(self.memory[self.pointer + 1]) else {
+            print("Invalid register. Function could not be completed.")
+            self.pointer += 2
+            return
+        }
+        print(unicodeValueToCharacter(self.registers[self.memory[self.pointer + 1]]))
+        self.pointer += 2
     }
     func printi() {
-        //incomplete, ID 49
+        guard self.pointer + 1 < self.memory.count else {
+            print("Not enough to complete function. Program terminated.")
+            self.running = false
+            return
+        }
+        guard validRegister(self.memory[self.pointer + 1]) else {
+            print("Invalid register. Function could not be completed.")
+            self.pointer += 2
+            return
+        }
+        print(self.registers[self.memory[self.pointer + 1]], terminator: "\n")
+        self.pointer += 2
     }
     func outs() {
-        //incomplete, ID 55
+        guard self.pointer + 1 < self.memory.count else {
+            print("Not enough to complete function. Program terminated.")
+            self.running = false
+            return
+        }
+        let memoryLocation = self.memory[self.pointer + 1]
+        guard validMemoryLocation(memoryLocation) else {
+            print("Invalid memory location. Jump could not be completed.")
+            self.pointer += 2
+            return
+        }
+        print(makeString(memoryLocation: memoryLocation), terminator: "\n")
     }
     func jmpne() {
         guard self.pointer + 1 < self.memory.count else {
@@ -150,14 +186,31 @@ class PartialVM {
             self.running = false
             return
         }
+        let memoryLocation = self.memory[self.pointer + 1]
+        guard validMemoryLocation(memoryLocation) else {
+            print("Invalid memory location. Jump could not be completed.")
+            self.pointer += 2
+            return
+        }
         if self.compare {
-            self.pointer = self.memory[self.pointer + 1]
+            self.pointer = memoryLocation
         }
         self.pointer += 2
     }
     
     func validRegister(_ r: Int) -> Bool {
         return r >= 0 && r <= 9
+    }
+    
+    func validMemoryLocation(_ m: Int) -> Bool {
+        return m >= self.memory[1] && m < self.memory.count
+    }
+    func makeString(memoryLocation: Int) -> String {
+        var returnString = ""
+        for e in (memoryLocation + 1)...(memoryLocation + self.memory[memoryLocation] - 1) {
+            returnString += String(unicodeValueToCharacter(self.memory[e]))
+        }
+        return returnString
     }
 }
 
