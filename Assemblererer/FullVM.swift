@@ -67,6 +67,21 @@ class FullVM {
     func halt() {
         self.running = false
     }
+    func clrr() {
+        //incomplete
+    }
+    func clrx() {
+        //incomplete
+    }
+    func clrm() {
+        //incomplete
+    }
+    func clrb() {
+        //incomplete
+    }
+    func movir() {
+        //incomplete
+    }
     func movrr() {
         guard self.pointer + 2 < self.memory.count else {
             print("Not enough to complete function. Program terminated.")
@@ -82,6 +97,9 @@ class FullVM {
         self.registers[self.memory[self.pointer + 2]] = registerValue
         self.pointer += 3
     }
+    func movrm() {
+        //incomplete
+    }
     func movmr() {
         guard self.pointer + 2 < self.memory.count else {
             print("Not enough to complete function. Program terminated.")
@@ -96,6 +114,15 @@ class FullVM {
         let memoryLocation = self.memory[self.pointer + 1] + 2
         self.registers[self.memory[self.pointer + 2]] = self.memory[memoryLocation]
         self.pointer += 3
+    }
+    func movxr() {
+        //incomplete
+    }
+    func movar() {
+        //incomplete
+    }
+    func movb() {
+        //incomplete
     }
     func addir() {
         guard self.pointer + 2 < self.memory.count else {
@@ -126,6 +153,66 @@ class FullVM {
         self.registers[self.memory[self.pointer + 2]] += registerValue
         self.pointer += 3
     }
+    func addmr() {
+        //incomplete
+    }
+    func addxr() {
+        //incomplete
+    }
+    func subir() {
+        //incomplete
+    }
+    func subrr() {
+        //incomplete
+    }
+    func submr() {
+        //incomplete
+    }
+    func subxr() {
+        //incomplete
+    }
+    func mulir() {
+        //incomplete
+    }
+    func mulrr() {
+        //incomplete
+    }
+    func mulmr() {
+        //incomplete
+    }
+    func mulxr() {
+        //incomplete
+    }
+    func divir() {
+        //incomplete
+    }
+    func divrr() {
+        //incomplete
+    }
+    func divmr() {
+        //incomplete
+    }
+    func divxr() {
+        //incomplete
+    }
+    func jmp() {
+        //incomplete
+    }
+    func sojz() {
+        //incomplete
+    }
+    func sojnz() {
+        //incomplete
+    }
+    func aojz() {
+        //incomplete
+    }
+    func aojnz() {
+        //incomplete
+    }
+    func cmpir() {
+        //incomplete
+    }
     func cmprr() {
         guard self.pointer + 2 < self.memory.count else {
             print("Not enough to complete function. Program terminated.")
@@ -142,6 +229,36 @@ class FullVM {
         self.compare = r1value == r2value
         self.pointer += 3
     }
+    func cmpmr() {
+        //incomplete
+    }
+    func jmpn() {
+        //incomplete
+    }
+    func jmpz() {
+        //incomplete
+    }
+    func jmpp() {
+        //incomplete
+    }
+    func jsr() {
+        //incomplete
+    }
+    func ret() {
+        //incomplete
+    }
+    func push() {
+        //incomplete
+    }
+    func pop() {
+        //incomplete
+    }
+    func stackc() {
+        //incomplete
+    }
+    func outci() {
+        //incomplete
+    }
     func outcr() {
         guard self.pointer + 1 < self.memory.count else {
             print("Not enough to complete function. Program terminated.")
@@ -155,6 +272,15 @@ class FullVM {
         }
         print(unicodeValueToCharacter(self.registers[self.memory[self.pointer + 1]]), terminator: "")
         self.pointer += 2
+    }
+    func outcx() {
+        //incomplete
+    }
+    func outcb() {
+        //incomplete
+    }
+    func readi() {
+        //incomplete
     }
     func printi() {
         guard self.pointer + 1 < self.memory.count else {
@@ -170,6 +296,21 @@ class FullVM {
         print(self.registers[self.memory[self.pointer + 1]], terminator: "")
         self.pointer += 2
     }
+    func readc() {
+        //incomplete
+    }
+    func readln() {
+        //incomplete
+    }
+    func brk() {
+        //incomplete
+    }
+    func movrx() {
+        //incomplete
+    }
+    func movxx() {
+        //incomplete
+    }
     func outs() {
         guard self.pointer + 1 < self.memory.count else {
             print("Not enough to complete function. Program terminated.")
@@ -184,6 +325,9 @@ class FullVM {
         }
         print(makeString(memoryLocation: memoryLocation), terminator: "")
         self.pointer += 2
+    }
+    func nop () {
+        //incomplete
     }
     func jmpne() {
         guard self.pointer + 1 < self.memory.count else {
