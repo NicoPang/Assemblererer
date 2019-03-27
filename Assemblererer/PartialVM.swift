@@ -32,7 +32,7 @@ class PartialVM {
     }
     
     func executeInstruction() {
-        guard self.pointer >= self.memory.count else {
+        guard self.pointer < self.memory.count else {
             print("No more functions found. Program terminated.")
             self.running = false
             return
@@ -66,7 +66,6 @@ class PartialVM {
     //list of functions needed for partialVM
     func halt() {
         self.running = false
-        self.pointer += 1
     }
     func movrr() {
         guard self.pointer + 2 < self.memory.count else {
@@ -79,8 +78,8 @@ class PartialVM {
             self.pointer += 3
             return
         }
-        let registerValue = self.registers[self.pointer + 1]
-        self.registers[self.pointer + 2] = registerValue
+        let registerValue = self.registers[self.memory[self.pointer + 1]]
+        self.registers[self.memory[self.pointer + 2]] = registerValue
         self.pointer += 3
     }
     func movmr() {
@@ -94,8 +93,8 @@ class PartialVM {
             self.pointer += 3
             return
         }
-        let memoryLocation = self.memory[self.pointer + 1]
-        self.registers[self.pointer + 2] = self.memory[memoryLocation]
+        let memoryLocation = self.memory[self.pointer + 1] + 2
+        self.registers[self.memory[self.pointer + 2]] = self.memory[memoryLocation]
         self.pointer += 3
     }
     func addir() {
@@ -109,7 +108,7 @@ class PartialVM {
             self.pointer += 3
             return
         }
-        self.registers[self.pointer + 2] += self.memory[self.pointer + 1]
+        self.registers[self.memory[self.pointer + 2]] += self.memory[self.pointer + 1]
         self.pointer += 3
     }
     func addrr() {
@@ -123,8 +122,8 @@ class PartialVM {
             self.pointer += 3
             return
         }
-        let registerValue = self.registers[self.pointer + 1]
-        self.registers[self.pointer + 2] += registerValue
+        let registerValue = self.registers[self.memory[self.pointer + 1]]
+        self.registers[self.memory[self.pointer + 2]] += registerValue
         self.pointer += 3
     }
     func cmprr() {
@@ -154,7 +153,7 @@ class PartialVM {
             self.pointer += 2
             return
         }
-        print(unicodeValueToCharacter(self.registers[self.memory[self.pointer + 1]]))
+        print(unicodeValueToCharacter(self.registers[self.memory[self.pointer + 1]]), terminator: "")
         self.pointer += 2
     }
     func printi() {
@@ -168,7 +167,7 @@ class PartialVM {
             self.pointer += 2
             return
         }
-        print(self.registers[self.memory[self.pointer + 1]], terminator: "\n")
+        print(self.registers[self.memory[self.pointer + 1]], terminator: "")
         self.pointer += 2
     }
     func outs() {
@@ -177,13 +176,14 @@ class PartialVM {
             self.running = false
             return
         }
-        let memoryLocation = self.memory[self.pointer + 1]
+        let memoryLocation = self.memory[self.pointer + 1] + 2
         guard validMemoryLocation(memoryLocation) else {
-            print("Invalid memory location. Jump could not be completed.")
+            print("Invalid memory location \(memoryLocation). String could not be printed.")
             self.pointer += 2
             return
         }
-        print(makeString(memoryLocation: memoryLocation), terminator: "\n")
+        print(makeString(memoryLocation: memoryLocation), terminator: "")
+        self.pointer += 2
     }
     func jmpne() {
         guard self.pointer + 1 < self.memory.count else {
@@ -191,16 +191,17 @@ class PartialVM {
             self.running = false
             return
         }
-        let memoryLocation = self.memory[self.pointer + 1]
+        let memoryLocation = self.memory[self.pointer + 1] + 2
         guard validMemoryLocation(memoryLocation) else {
-            print("Invalid memory location. Jump could not be completed.")
+            print("Invalid memory location \(memoryLocation). Jump could not be completed.")
             self.pointer += 2
             return
         }
         if self.compare {
-            self.pointer = memoryLocation
+            self.pointer += 2
+            return
         }
-        self.pointer += 2
+        self.pointer = memoryLocation
     }
     
     func validRegister(_ r: Int) -> Bool {
@@ -208,11 +209,11 @@ class PartialVM {
     }
     
     func validMemoryLocation(_ m: Int) -> Bool {
-        return m >= self.memory[1] && m < self.memory.count
+        return m >= 2 && m < self.memory.count
     }
     func makeString(memoryLocation: Int) -> String {
         var returnString = ""
-        for e in (memoryLocation + 1)...(memoryLocation + self.memory[memoryLocation] - 1) {
+        for e in (memoryLocation + 1)...(memoryLocation + self.memory[memoryLocation]) {
             returnString += String(unicodeValueToCharacter(self.memory[e]))
         }
         return returnString
