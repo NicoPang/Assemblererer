@@ -20,6 +20,11 @@ class PartialVM {
     }
     
     func run() {
+        guard self.memory.count >= 3 else {
+            print("Not enough memory to run.")
+            return
+        }
+        self.pointer = self.memory[1] + 2
         self.running = true
         while self.running {
             self.executeInstruction()
