@@ -14,17 +14,25 @@ class PartialVM {
     var running = false
     var rPC = 0
     var rCP = false
+    var memorySize = 0
+    var start = 0
     
-    func inputMemory(_ memory: [Int]) {
-        self.memory = memory
+    func inputBinary(_ binary: [Int]) {
+        guard binary.count > 2 else {
+            print("No memory found.")
+            return
+        }
+        self.memorySize = binary[0]
+        self.start = binary[1]
+        self.memory = Array(binary[2...])
     }
     
     func run() {
-        guard self.memory.count >= 3 else {
+        guard self.memory.count > 0 else {
             print("Not enough memory to run.")
             return
         }
-        self.rPC = self.memory[1] + 2
+        self.rPC = self.start
         self.running = true
         while self.running {
             self.executeInstruction()
@@ -93,7 +101,7 @@ class PartialVM {
             self.rPC += 3
             return
         }
-        let memoryLocation = self.memory[self.rPC + 1] + 2
+        let memoryLocation = self.memory[self.rPC + 1]
         self.registers[self.memory[self.rPC + 2]] = self.memory[memoryLocation]
         self.rPC += 3
     }
@@ -176,7 +184,7 @@ class PartialVM {
             self.running = false
             return
         }
-        let memoryLocation = self.memory[self.rPC + 1] + 2
+        let memoryLocation = self.memory[self.rPC + 1]
         guard validMemoryLocation(memoryLocation) else {
             print("Invalid memory location \(memoryLocation). String could not be printed.")
             self.rPC += 2
@@ -191,7 +199,7 @@ class PartialVM {
             self.running = false
             return
         }
-        let memoryLocation = self.memory[self.rPC + 1] + 2
+        let memoryLocation = self.memory[self.rPC + 1]
         guard validMemoryLocation(memoryLocation) else {
             print("Invalid memory location \(memoryLocation). Jump could not be completed.")
             self.rPC += 2
