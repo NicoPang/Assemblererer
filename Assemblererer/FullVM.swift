@@ -40,22 +40,118 @@ class FullVM {
         switch self.memory[self.pointer] {
         case 0 :
             self.halt()
+        case 1 :
+            self.clrr()
+        case 2 :
+            self.clrx()
+        case 3 :
+            self.clrm()
+        case 4 :
+            self.clrb()
+        case 5 :
+            self.movir()
         case 6 :
             self.movrr()
+        case 7 :
+            self.movrm()
         case 8 :
             self.movmr()
+        case 9 :
+            self.movxr()
+        case 10 :
+            self.movar()
+        case 11 :
+            self.movb()
         case 12 :
             self.addir()
         case 13 :
             self.addrr()
+        case 14 :
+            self.addmr()
+        case 15 :
+            self.addxr()
+        case 16 :
+            self.subir()
+        case 17 :
+            self.subrr()
+        case 18 :
+            self.submr()
+        case 19 :
+            self.subxr()
+        case 20 :
+            self.mulir()
+        case 21 :
+            self.mulrr()
+        case 22 :
+            self.mulmr()
+        case 23 :
+            self.mulxr()
+        case 24 :
+            self.divir()
+        case 25 :
+            self.divrr()
+        case 26 :
+            self.divmr()
+        case 27 :
+            self.divxr()
+        case 28 :
+            self.jmp()
+        case 29 :
+            self.sojz()
+        case 30 :
+            self.sojnz()
+        case 31 :
+            self.aojz()
+        case 32 :
+            self.aojnz()
+        case 33 :
+            self.cmpir()
         case 34 :
             self.cmprr()
+        case 35 :
+            self.cmpmr()
+        case 36 :
+            self.jmpn()
+        case 37 :
+            self.jmpz()
+        case 38 :
+            self.jmpp()
+        case 39 :
+            self.jsr()
+        case 40 :
+            self.ret()
+        case 41 :
+            self.push()
+        case 42 :
+            self.pop()
+        case 43 :
+            self.stackc()
+        case 44 :
+            self.outci()
         case 45 :
             self.outcr()
+        case 46 :
+            self.outcx()
+        case 47 :
+            self.outcb()
+        case 48 :
+            self.readi()
         case 49 :
             self.printi()
+        case 50 :
+            self.readc()
+        case 51 :
+            self.readln()
+        case 52 :
+            self.brk()
+        case 53 :
+            self.movrx()
+        case 54 :
+            self.movxx()
         case 55 :
             self.outs()
+        case 56 :
+            self.nop()
         case 57 :
             self.jmpne()
         default :
