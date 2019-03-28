@@ -12,8 +12,8 @@ class FullVM {
     var registers: [Int] = Array<Int>(repeatElement(0, count: 10))
     var memory: [Int] = []
     var running = false
-    var pointer = 0
-    var compare = false
+    var rPC = 0
+    var rCP = false
     
     func inputMemory(_ memory: [Int]) {
         self.memory = memory
@@ -24,7 +24,7 @@ class FullVM {
             print("Not enough memory to run.")
             return
         }
-        self.pointer = self.memory[1] + 2
+        self.rPC = self.memory[1] + 2
         self.running = true
         while self.running {
             self.executeInstruction()
@@ -32,12 +32,12 @@ class FullVM {
     }
     
     func executeInstruction() {
-        guard self.pointer < self.memory.count else {
+        guard self.rPC < self.memory.count else {
             print("No more functions found. Program terminated.")
             self.running = false
             return
         }
-        switch self.memory[self.pointer] {
+        switch self.memory[self.rPC] {
         case 0 :
             self.halt()
         case 1 :
@@ -155,7 +155,7 @@ class FullVM {
         case 57 :
             self.jmpne()
         default :
-            print("\(self.memory[self.pointer]) is not a valid command.")
+            print("\(self.memory[self.rPC]) is not a valid command.")
         }
     }
     
@@ -179,37 +179,37 @@ class FullVM {
         //incomplete
     }
     func movrr() {
-        guard self.pointer + 2 < self.memory.count else {
+        guard self.rPC + 2 < self.memory.count else {
             print("Not enough to complete function. Program terminated.")
             self.running = false
             return
         }
-        guard validRegister(self.memory[self.pointer + 1]) && validRegister(self.memory[self.pointer + 2]) else {
+        guard validRegister(self.memory[self.rPC + 1]) && validRegister(self.memory[self.rPC + 2]) else {
             print("Invalid registers. Function could not be completed.")
-            self.pointer += 3
+            self.rPC += 3
             return
         }
-        let registerValue = self.registers[self.memory[self.pointer + 1]]
-        self.registers[self.memory[self.pointer + 2]] = registerValue
-        self.pointer += 3
+        let registerValue = self.registers[self.memory[self.rPC + 1]]
+        self.registers[self.memory[self.rPC + 2]] = registerValue
+        self.rPC += 3
     }
     func movrm() {
         //incomplete
     }
     func movmr() {
-        guard self.pointer + 2 < self.memory.count else {
+        guard self.rPC + 2 < self.memory.count else {
             print("Not enough to complete function. Program terminated.")
             self.running = false
             return
         }
-        guard validRegister(self.memory[self.pointer + 1]) && validRegister(self.memory[self.pointer + 2]) else {
+        guard validRegister(self.memory[self.rPC + 1]) && validRegister(self.memory[self.rPC + 2]) else {
             print("Invalid registers. Function could not be completed.")
-            self.pointer += 3
+            self.rPC += 3
             return
         }
-        let memoryLocation = self.memory[self.pointer + 1] + 2
-        self.registers[self.memory[self.pointer + 2]] = self.memory[memoryLocation]
-        self.pointer += 3
+        let memoryLocation = self.memory[self.rPC + 1] + 2
+        self.registers[self.memory[self.rPC + 2]] = self.memory[memoryLocation]
+        self.rPC += 3
     }
     func movxr() {
         //incomplete
@@ -221,33 +221,33 @@ class FullVM {
         //incomplete
     }
     func addir() {
-        guard self.pointer + 2 < self.memory.count else {
+        guard self.rPC + 2 < self.memory.count else {
             print("Not enough to complete function. Program terminated.")
             self.running = false
             return
         }
-        guard validRegister(self.memory[self.pointer + 2]) else {
+        guard validRegister(self.memory[self.rPC + 2]) else {
             print("Invalid registers. Function could not be completed.")
-            self.pointer += 3
+            self.rPC += 3
             return
         }
-        self.registers[self.memory[self.pointer + 2]] += self.memory[self.pointer + 1]
-        self.pointer += 3
+        self.registers[self.memory[self.rPC + 2]] += self.memory[self.rPC + 1]
+        self.rPC += 3
     }
     func addrr() {
-        guard self.pointer + 2 < self.memory.count else {
+        guard self.rPC + 2 < self.memory.count else {
             print("Not enough to complete function. Program terminated.")
             self.running = false
             return
         }
-        guard validRegister(self.memory[self.pointer + 1]) && validRegister(self.memory[self.pointer + 2]) else {
+        guard validRegister(self.memory[self.rPC + 1]) && validRegister(self.memory[self.rPC + 2]) else {
             print("Invalid registers. Function could not be completed.")
-            self.pointer += 3
+            self.rPC += 3
             return
         }
-        let registerValue = self.registers[self.memory[self.pointer + 1]]
-        self.registers[self.memory[self.pointer + 2]] += registerValue
-        self.pointer += 3
+        let registerValue = self.registers[self.memory[self.rPC + 1]]
+        self.registers[self.memory[self.rPC + 2]] += registerValue
+        self.rPC += 3
     }
     func addmr() {
         //incomplete
@@ -310,20 +310,20 @@ class FullVM {
         //incomplete
     }
     func cmprr() {
-        guard self.pointer + 2 < self.memory.count else {
+        guard self.rPC + 2 < self.memory.count else {
             print("Not enough to complete function. Program terminated.")
             self.running = false
             return
         }
-        guard validRegister(self.memory[self.pointer + 1]) && validRegister(self.memory[self.pointer + 2]) else {
+        guard validRegister(self.memory[self.rPC + 1]) && validRegister(self.memory[self.rPC + 2]) else {
             print("Invalid registers. Function could not be completed.")
-            self.pointer += 3
+            self.rPC += 3
             return
         }
-        let r1value = self.registers[self.memory[self.pointer + 1]]
-        let r2value = self.registers[self.memory[self.pointer + 2]]
-        self.compare = r1value == r2value
-        self.pointer += 3
+        let r1value = self.registers[self.memory[self.rPC + 1]]
+        let r2value = self.registers[self.memory[self.rPC + 2]]
+        self.rCP = r1value == r2value
+        self.rPC += 3
     }
     func cmpmr() {
         //incomplete
@@ -356,18 +356,18 @@ class FullVM {
         //incomplete
     }
     func outcr() {
-        guard self.pointer + 1 < self.memory.count else {
+        guard self.rPC + 1 < self.memory.count else {
             print("Not enough to complete function. Program terminated.")
             self.running = false
             return
         }
-        guard validRegister(self.memory[self.pointer + 1]) else {
+        guard validRegister(self.memory[self.rPC + 1]) else {
             print("Invalid register. Function could not be completed.")
-            self.pointer += 2
+            self.rPC += 2
             return
         }
-        print(unicodeValueToCharacter(self.registers[self.memory[self.pointer + 1]]), terminator: "")
-        self.pointer += 2
+        print(unicodeValueToCharacter(self.registers[self.memory[self.rPC + 1]]), terminator: "")
+        self.rPC += 2
     }
     func outcx() {
         //incomplete
@@ -379,18 +379,18 @@ class FullVM {
         //incomplete
     }
     func printi() {
-        guard self.pointer + 1 < self.memory.count else {
+        guard self.rPC + 1 < self.memory.count else {
             print("Not enough to complete function. Program terminated.")
             self.running = false
             return
         }
-        guard validRegister(self.memory[self.pointer + 1]) else {
+        guard validRegister(self.memory[self.rPC + 1]) else {
             print("Invalid register. Function could not be completed.")
-            self.pointer += 2
+            self.rPC += 2
             return
         }
-        print(self.registers[self.memory[self.pointer + 1]], terminator: "")
-        self.pointer += 2
+        print(self.registers[self.memory[self.rPC + 1]], terminator: "")
+        self.rPC += 2
     }
     func readc() {
         //incomplete
@@ -408,40 +408,40 @@ class FullVM {
         //incomplete
     }
     func outs() {
-        guard self.pointer + 1 < self.memory.count else {
+        guard self.rPC + 1 < self.memory.count else {
             print("Not enough to complete function. Program terminated.")
             self.running = false
             return
         }
-        let memoryLocation = self.memory[self.pointer + 1] + 2
+        let memoryLocation = self.memory[self.rPC + 1] + 2
         guard validMemoryLocation(memoryLocation) else {
             print("Invalid memory location \(memoryLocation). String could not be printed.")
-            self.pointer += 2
+            self.rPC += 2
             return
         }
         print(makeString(memoryLocation: memoryLocation), terminator: "")
-        self.pointer += 2
+        self.rPC += 2
     }
     func nop () {
         //incomplete
     }
     func jmpne() {
-        guard self.pointer + 1 < self.memory.count else {
+        guard self.rPC + 1 < self.memory.count else {
             print("Not enough to complete function. Program terminated.")
             self.running = false
             return
         }
-        let memoryLocation = self.memory[self.pointer + 1] + 2
+        let memoryLocation = self.memory[self.rPC + 1] + 2
         guard validMemoryLocation(memoryLocation) else {
             print("Invalid memory location \(memoryLocation). Jump could not be completed.")
-            self.pointer += 2
+            self.rPC += 2
             return
         }
-        if self.compare {
-            self.pointer += 2
+        if self.rCP {
+            self.rPC += 2
             return
         }
-        self.pointer = memoryLocation
+        self.rPC = memoryLocation
     }
     
     func validRegister(_ r: Int) -> Bool {
