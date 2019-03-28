@@ -164,7 +164,17 @@ class FullVM {
         self.running = false
     }
     func clrr() {
-        //incomplete
+        guard self.rPC + 1 < self.memory.count else {
+            print("Not enough to complete function. Program terminated.")
+            self.running = false
+            return
+        }
+        guard validRegister(self.memory[self.rPC + 1])  else {
+            print("Invalid registers. Function could not be completed.")
+            self.rPC += 3
+            return
+        }
+        self.registers[self.memory[self.rPC + 1 + 2]] = 0
     }
     func clrx() {
         //incomplete
