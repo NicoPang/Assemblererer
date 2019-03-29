@@ -31,10 +31,11 @@ class PartialVM {
         do {
             // Get the contents
             let contents = try NSString(contentsOfFile: path, encoding: String.Encoding.utf8.rawValue)
-            print(splitBinaryFile(String(contents)))
+            inputBinary(splitBinaryFile(String(contents)))
+            
         }
-        catch let error as NSError {
-            print("Ooops! Something went wrong: \(error)")
+        catch let _ as NSError {
+            print("File unreadable. Please try a different file.")
         }
     }
     
