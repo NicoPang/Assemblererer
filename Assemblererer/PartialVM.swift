@@ -27,6 +27,17 @@ class PartialVM {
         self.memory = Array(binary[2...])
     }
     
+    func inputBinaryFromFile(path: String) {
+        do {
+            // Get the contents
+            let contents = try NSString(contentsOfFile: path, encoding: String.Encoding.utf8.rawValue)
+            print(splitBinaryFile(String(contents)))
+        }
+        catch let error as NSError {
+            print("Ooops! Something went wrong: \(error)")
+        }
+    }
+    
     func run() {
         guard self.memory.count > 0 else {
             print("Not enough memory to run.")

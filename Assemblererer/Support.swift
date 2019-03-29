@@ -46,4 +46,6 @@ func splitStringIntoLines(_ expression: String) -> [String] {
     return expression.components(separatedBy: "\n")
 }
 
-
+func splitBinaryFile(_ s: String) -> [Int] {
+    return s.components(separatedBy: CharacterSet(charactersIn: "\n ,")).map{Int($0)!}
+}
