@@ -34,7 +34,7 @@ class PartialVM {
             inputBinary(splitBinaryFile(String(contents)))
             
         }
-        catch let _ as NSError {
+        catch _ as NSError {
             print("File unreadable. Please try a different file.")
         }
     }
@@ -190,19 +190,70 @@ class PartialVM {
         }
         guard validRegister(self.memory[self.rPC + 1])  else {
             print("Invalid registers. Function could not be completed.")
-            self.rPC += 3
+            self.rPC += 2
             return
         }
         self.registers[self.memory[self.rPC + 1]] = 0
+        self.rPC += 2
     }
     func clrx() {
-        //incomplete
+        guard self.rPC + 1 < self.memory.count else {
+            print("Not enough to complete function. Program terminated.")
+            self.running = false
+            return
+        }
+        let labelLocation = self.memory[self.rPC + 1]
+        guard validMemoryLocation(labelLocation)  else {
+            print("Label leads to invalid memory location. Function could not be completed.")
+            self.rPC += 2
+            return
+        }
+        let memoryLocation = self.memory[labelLocation]
+        guard validMemoryLocation(self.memory[memoryLocation]) else {
+            print("Invalid memory location. Function could not be completed.")
+            self.rPC += 2
+            return
+        }
+        self.memory[self.memory[memoryLocation]] = 0
+        self.rPC += 2
     }
     func clrm() {
-        //incomplete
+        guard self.rPC + 1 < self.memory.count else {
+            print("Not enough to complete function. Program terminated.")
+            self.running = false
+            return
+        }
+        let memoryLocation = self.memory[self.rPC + 1]
+        guard validMemoryLocation(memoryLocation)  else {
+            print("Label leads to invalid memory location. Function could not be completed.")
+            self.rPC += 2
+            return
+        }
+        self.memory[self.memory[memoryLocation]] = 0
+        self.rPC += 2
     }
     func clrb() {
-        //incomplete
+        guard self.rPC + 1 < self.memory.count else {
+            print("Not enough to complete function. Program terminated.")
+            self.running = false
+            return
+        }
+        let memoryLocation = self.memory[self.rPC + 1]
+        let count = self.memory[self.rPC + 2]
+        guard count > 0 else {
+            print("Count cannot be non-positive. Function could not be completed.")
+            return
+        }
+        //A count of 1 would cause two blocks of memory to be erased without the - 1
+        guard validMemoryLocation(memoryLocation) && validMemoryLocation(memoryLocation + count - 1)  else {
+            print("Label leads to invalid memory location. Function could not be completed.")
+            self.rPC += 3
+            return
+        }
+        for m in memoryLocation...(memoryLocation + count - 1) {
+            self.memory[m] = 0
+        }
+        self.rPC += 3
     }
     func movir() {
         //incomplete
