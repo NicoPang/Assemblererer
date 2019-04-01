@@ -29,12 +29,11 @@ class PartialVM {
     
     func inputBinaryFromFile(path: String) {
         do {
-            // Get the contents
-            let contents = try NSString(contentsOfFile: path, encoding: String.Encoding.utf8.rawValue)
-            inputBinary(splitBinaryFile(String(contents)))
+            let contents = try String(contentsOfFile: path, encoding: String.Encoding.utf8)
+            try inputBinary(splitBinaryFile(contents))
             
         }
-        catch _ as NSError {
+        catch {
             print("File unreadable. Please try a different file.")
         }
     }
@@ -176,6 +175,7 @@ class PartialVM {
             self.jmpne()
         default :
             print("\(self.memory[self.rPC]) is not a valid command.")
+            self.running = false
         }
     }
     //list of functions needed for partialVM
@@ -202,19 +202,19 @@ class PartialVM {
             self.running = false
             return
         }
-        let labelLocation = self.memory[self.rPC + 1]
-        guard validMemoryLocation(labelLocation)  else {
+        let register = self.memory[self.rPC + 1]
+        guard validMemoryLocation(register)  else {
             print("Label leads to invalid memory location. Function could not be completed.")
             self.rPC += 2
             return
         }
-        let memoryLocation = self.memory[labelLocation]
+        let memoryLocation = self.registers[register]
         guard validMemoryLocation(self.memory[memoryLocation]) else {
             print("Invalid memory location. Function could not be completed.")
             self.rPC += 2
             return
         }
-        self.memory[self.memory[memoryLocation]] = 0
+        self.memory[memoryLocation] = 0
         self.rPC += 2
     }
     func clrm() {
@@ -256,7 +256,18 @@ class PartialVM {
         self.rPC += 3
     }
     func movir() {
-        //incomplete
+        guard self.rPC + 2 < self.memory.count else {
+            print("Not enough to complete function. Program terminated.")
+            self.running = false
+            return
+        }
+        guard validRegister(self.memory[self.rPC + 2]) else {
+            print("Invalid registers. Function could not be completed.")
+            self.rPC += 3
+            return
+        }
+        self.registers[self.memory[self.rPC + 2]] = self.memory[self.rPC + 1]
+        self.rPC += 3
     }
     func movrr() {
         guard self.rPC + 2 < self.memory.count else {
