@@ -194,6 +194,7 @@ class PartialVM {
             self.running = false
             return
         }
+        
         self.registers[register] = 0
         self.rPC += 2
     }
@@ -215,6 +216,7 @@ class PartialVM {
             self.running = false
             return
         }
+        
         self.memory[memoryLocation] = 0
         self.rPC += 2
     }
@@ -230,6 +232,7 @@ class PartialVM {
             self.running = false
             return
         }
+        
         self.memory[self.memory[memoryLocation]] = 0
         self.rPC += 2
     }
@@ -241,9 +244,13 @@ class PartialVM {
         }
         let memoryLocation = self.memory[self.rPC + 1]
         let count = self.memory[self.rPC + 2]
-        guard count > 0 else {
+        guard count >= 0 else {
             print("Invalid count number specified at \(self.rPC + 2). Program terminated.")
             self.running = false
+            return
+        }
+        if count == 0 {
+            self.rPC += 3
             return
         }
         //A count of 1 would cause two blocks of memory to be erased without the - 1
@@ -252,6 +259,7 @@ class PartialVM {
             self.running = false
             return
         }
+        
         for m in memoryLocation...(memoryLocation + count - 1) {
             self.memory[m] = 0
         }
@@ -269,6 +277,7 @@ class PartialVM {
             self.running = false
             return
         }
+        
         self.registers[register] = self.memory[self.rPC + 1]
         self.rPC += 3
     }
@@ -290,6 +299,7 @@ class PartialVM {
             self.running = false
             return
         }
+        
         self.registers[register2] = self.registers[register1]
         self.rPC += 3
     }
@@ -311,6 +321,7 @@ class PartialVM {
             self.running = false
             return
         }
+        
         self.memory[memoryLocation] = self.registers[register]
         self.rPC += 3
     }
@@ -337,13 +348,106 @@ class PartialVM {
         self.rPC += 3
     }
     func movxr() {
-        //incomplete
+        guard self.rPC + 2 < self.memorySize else {
+            print("Invalid memory location \(self.memorySize). Program terminated.")
+            self.running = false
+            return
+        }
+        let register1 = self.memory[self.rPC + 1]
+        let register2 = self.memory[self.rPC + 2]
+        guard validRegister(register1) else {
+            print("Invalid register specified at \(self.rPC + 1). Program terminated.")
+            self.running = false
+            return
+        }
+        guard validRegister(register2) else {
+            print("Invalid register specified at \(self.rPC + 2). Program terminated.")
+            self.running = false
+            return
+        }
+        let memoryLocation = self.registers[register1]
+        guard validMemoryLocation(memoryLocation) else {
+            print("Invalid memory location in register \(register1). Program terminated.")
+            self.running = false
+            return
+        }
+        
+        self.registers[register2] = self.memory[memoryLocation]
+        self.rPC += 3
     }
     func movar() {
-        //incomplete
+        guard self.rPC + 2 < self.memorySize else {
+            print("Invalid memory location \(self.memorySize). Program terminated.")
+            self.running = false
+            return
+        }
+        let memoryLocation = self.memory[self.rPC + 1]
+        let register = self.memory[self.rPC + 2]
+        guard validMemoryLocation(memoryLocation) else {
+            print("Invalid memory location specified at \(self.rPC + 1). Program terminated.")
+            self.running = false
+            return
+        }
+        guard validRegister(register) else {
+            print("Invalid register specified at \(self.rPC + 2). Program terminated.")
+            self.running = false
+            return
+        }
+        
+        self.registers[self.memory[self.rPC + 2]] = memoryLocation
+        self.rPC += 3
     }
     func movb() {
-        //incomplete
+        guard self.rPC + 3 < self.memorySize else {
+            print("Invalid memory location \(self.memorySize). Program terminated.")
+            self.running = false
+            return
+        }
+        let register1 = self.memory[self.rPC + 1]
+        let register2 = self.memory[self.rPC + 2]
+        let register3 = self.memory[self.rPC + 3]
+        guard validRegister(register1) else {
+            print("Invalid register specified at \(self.rPC + 1). Program terminated.")
+            self.running = false
+            return
+        }
+        guard validRegister(register2) else {
+            print("Invalid register specified at \(self.rPC + 2). Program terminated.")
+            self.running = false
+            return
+        }
+        guard validRegister(register3) else {
+            print("Invalid register specified at \(self.rPC + 3). Program terminated.")
+            self.running = false
+            return
+        }
+        let memoryLocation1 = self.registers[register1]
+        let memoryLocation2 = self.registers[register2]
+        let count = self.registers[register3]
+        guard validMemoryLocation(memoryLocation1) else {
+            print("Invalid memory location in register \(register1). Program terminated.")
+            self.running = false
+            return
+        }
+        guard validMemoryLocation(memoryLocation2) else {
+            print("Invalid memory location in register \(register2). Program terminated.")
+            self.running = false
+            return
+        }
+        guard count >= 0 else {
+            print("Invalid count number in register \(register3). Program terminated.")
+            self.running = false
+            return
+        }
+        if count == 0 {
+            self.rPC += 4
+            return
+        }
+        
+        for m in 0...(count - 1) {
+            self.memory[memoryLocation2 + m] = self.memory[memoryLocation1 + m]
+        }
+        self.rPC += 4
     }
     func addir() {
         guard self.rPC + 2 < self.memorySize else {
@@ -357,6 +461,7 @@ class PartialVM {
             self.running = false
             return
         }
+        
         self.registers[register] += self.memory[self.rPC + 1]
         self.rPC += 3
     }
@@ -378,6 +483,7 @@ class PartialVM {
             self.running = false
             return
         }
+        
         self.registers[register2] += self.registers[register1]
         self.rPC += 3
     }
@@ -459,6 +565,7 @@ class PartialVM {
             self.running = false
             return
         }
+        
         self.rCP = self.registers[register1] == self.registers[register2]
         self.rPC += 3
     }
@@ -504,6 +611,7 @@ class PartialVM {
             self.running = false
             return
         }
+        
         print(unicodeValueToCharacter(self.registers[register]), terminator: "")
         self.rPC += 2
     }
@@ -528,6 +636,7 @@ class PartialVM {
             self.running = false
             return
         }
+        
         print(self.registers[register], terminator: "")
         self.rPC += 2
     }
@@ -558,6 +667,7 @@ class PartialVM {
             self.running = false
             return
         }
+        
         print(makeString(memoryLocation: memoryLocation), terminator: "")
         self.rPC += 2
     }
@@ -576,6 +686,7 @@ class PartialVM {
             self.running = false
             return
         }
+        
         if self.rCP {
             self.rPC += 2
             return
