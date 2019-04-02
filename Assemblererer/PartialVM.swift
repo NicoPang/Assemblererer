@@ -18,7 +18,7 @@ class PartialVM {
     var start = 0
     
     func inputBinary(_ binary: [Int]) {
-        guard binary.count > 2 else {
+        guard binary.count > 3 else {
             print("No memory found.")
             return
         }
@@ -39,8 +39,8 @@ class PartialVM {
     }
     
     func run() {
-        guard self.memory.count > 0 else {
-            print("Not enough memory to run.")
+        guard self.memorySize > 0 else {
+            print("No memory found.")
             return
         }
         self.rPC = self.start
@@ -51,8 +51,8 @@ class PartialVM {
     }
     
     func executeInstruction() {
-        guard self.rPC < self.memory.count else {
-            print("No more functions found. Program terminated.")
+        guard self.rPC < self.memorySize else {
+            print("Invalid memory location \(self.memorySize). Program terminated.")
             self.running = false
             return
         }
@@ -174,7 +174,7 @@ class PartialVM {
         case 57 :
             self.jmpne()
         default :
-            print("\(self.memory[self.rPC]) is not a valid command.")
+            print("Invalid command at \(self.rPC). Program terminated.")
             self.running = false
         }
     }
@@ -183,71 +183,73 @@ class PartialVM {
         self.running = false
     }
     func clrr() {
-        guard self.rPC + 1 < self.memory.count else {
-            print("Not enough to complete function. Program terminated.")
-            self.running = false
-            return
-        }
-        guard validRegister(self.memory[self.rPC + 1])  else {
-            print("Invalid registers. Function could not be completed.")
-            self.rPC += 2
-            return
-        }
-        self.registers[self.memory[self.rPC + 1]] = 0
-        self.rPC += 2
-    }
-    func clrx() {
-        guard self.rPC + 1 < self.memory.count else {
-            print("Not enough to complete function. Program terminated.")
+        guard self.rPC + 1 < self.memorySize else {
+            print("Invalid memory location \(self.memorySize). Program terminated.")
             self.running = false
             return
         }
         let register = self.memory[self.rPC + 1]
-        guard validMemoryLocation(register)  else {
-            print("Label leads to invalid memory location. Function could not be completed.")
-            self.rPC += 2
+        guard validRegister(register)  else {
+            print("Invalid register specified at \(self.rPC + 1). Program terminated.")
+            self.running = false
+            return
+        }
+        self.registers[register] = 0
+        self.rPC += 2
+    }
+    func clrx() {
+        guard self.rPC + 1 < self.memorySize else {
+            print("Invalid memory location \(self.memorySize). Program terminated.")
+            self.running = false
+            return
+        }
+        let register = self.memory[self.rPC + 1]
+        guard validRegister(register)  else {
+            print("Invalid register specified at \(self.rPC + 1). Program terminated.")
+            self.running = false
             return
         }
         let memoryLocation = self.registers[register]
         guard validMemoryLocation(self.memory[memoryLocation]) else {
-            print("Invalid memory location. Function could not be completed.")
-            self.rPC += 2
+            print("Invalid memory location specified by register \(register). Program terminated.")
+            self.running = false
             return
         }
         self.memory[memoryLocation] = 0
         self.rPC += 2
     }
     func clrm() {
-        guard self.rPC + 1 < self.memory.count else {
-            print("Not enough to complete function. Program terminated.")
+        guard self.rPC + 1 < self.memorySize else {
+            print("Invalid memory location \(self.memorySize). Program terminated.")
             self.running = false
             return
         }
         let memoryLocation = self.memory[self.rPC + 1]
         guard validMemoryLocation(memoryLocation)  else {
-            print("Label leads to invalid memory location. Function could not be completed.")
-            self.rPC += 2
+            print("Invalid memory location specified at \(self.rPC + 1). Program terminated.")
+            self.running = false
             return
         }
         self.memory[self.memory[memoryLocation]] = 0
         self.rPC += 2
     }
     func clrb() {
-        guard self.rPC + 1 < self.memory.count else {
-            print("Not enough to complete function. Program terminated.")
+        guard self.rPC + 1 < self.memorySize else {
+            print("Invalid memory location \(self.memorySize). Program terminated.")
             self.running = false
             return
         }
         let memoryLocation = self.memory[self.rPC + 1]
         let count = self.memory[self.rPC + 2]
         guard count > 0 else {
-            print("Count cannot be non-positive. Function could not be completed.")
+            print("Invalid count number specified at \(self.rPC + 2). Program terminated.")
+            self.running = false
             return
         }
         //A count of 1 would cause two blocks of memory to be erased without the - 1
         guard validMemoryLocation(memoryLocation) && validMemoryLocation(memoryLocation + count - 1)  else {
-            print("Label leads to invalid memory location. Function could not be completed.")
-            self.rPC += 3
+            print("Invalid block of memory (\(memoryLocation)...\(memoryLocation + count - 1)). Program terminated.")
+            self.running = false
             return
         }
         for m in memoryLocation...(memoryLocation + count - 1) {
@@ -256,49 +258,81 @@ class PartialVM {
         self.rPC += 3
     }
     func movir() {
-        guard self.rPC + 2 < self.memory.count else {
-            print("Not enough to complete function. Program terminated.")
+        guard self.rPC + 2 < self.memorySize else {
+            print("Invalid memory location \(self.memorySize). Program terminated.")
             self.running = false
             return
         }
-        guard validRegister(self.memory[self.rPC + 2]) else {
-            print("Invalid registers. Function could not be completed.")
-            self.rPC += 3
+        let register = self.memory[self.rPC + 2]
+        guard validRegister(register) else {
+            print("Invalid register speficied at \(self.rPC + 2). Program terminated.")
+            self.running = false
             return
         }
-        self.registers[self.memory[self.rPC + 2]] = self.memory[self.rPC + 1]
+        self.registers[register] = self.memory[self.rPC + 1]
         self.rPC += 3
     }
     func movrr() {
-        guard self.rPC + 2 < self.memory.count else {
-            print("Not enough to complete function. Program terminated.")
+        guard self.rPC + 2 < self.memorySize else {
+            print("Invalid memory location \(self.memorySize). Program terminated.")
             self.running = false
             return
         }
-        guard validRegister(self.memory[self.rPC + 1]) && validRegister(self.memory[self.rPC + 2]) else {
-            print("Invalid registers. Function could not be completed.")
-            self.rPC += 3
+        let register1 = self.memory[self.rPC + 1]
+        let register2 = self.memory[self.rPC + 2]
+        guard validRegister(register1) else {
+            print("Invalid register specified at \(self.rPC + 1). Program terminated.")
+            self.running = false
             return
         }
-        let registerValue = self.registers[self.memory[self.rPC + 1]]
-        self.registers[self.memory[self.rPC + 2]] = registerValue
+        guard validRegister(register2) else {
+            print("Invalid register specified at \(self.rPC + 2). Program terminated.")
+            self.running = false
+            return
+        }
+        self.registers[register2] = self.registers[register1]
         self.rPC += 3
     }
     func movrm() {
-        //incomplete
-    }
-    func movmr() {
-        guard self.rPC + 2 < self.memory.count else {
-            print("Not enough to complete function. Program terminated.")
+        guard self.rPC + 2 < self.memorySize else {
+            print("Invalid memory location \(self.memorySize). Program terminated.")
             self.running = false
             return
         }
-        guard validRegister(self.memory[self.rPC + 1]) && validRegister(self.memory[self.rPC + 2]) else {
-            print("Invalid registers. Function could not be completed.")
-            self.rPC += 3
+        let register = self.memory[self.rPC + 1]
+        let memoryLocation = self.memory[self.rPC + 2]
+        guard validRegister(register) else {
+            print("Invalid register specified at \(self.rPC + 1). Program terminated.")
+            self.running = false
+            return
+        }
+        guard validMemoryLocation(memoryLocation) else {
+            print("Invalid memory location specified at \(self.rPC + 2). Program terminated.")
+            self.running = false
+            return
+        }
+        self.memory[memoryLocation] = self.registers[register]
+        self.rPC += 3
+    }
+    func movmr() {
+        guard self.rPC + 2 < self.memorySize else {
+            print("Invalid memory location \(self.memorySize). Program terminated.")
+            self.running = false
             return
         }
         let memoryLocation = self.memory[self.rPC + 1]
+        let register = self.memory[self.rPC + 2]
+        guard validMemoryLocation(memoryLocation) else {
+            print("Invalid memory location specified at \(self.rPC + 1). Program terminated.")
+            self.running = false
+            return
+        }
+        guard validRegister(register) else {
+            print("Invalid register specified at \(self.rPC + 2). Program terminated.")
+            self.running = false
+            return
+        }
+        
         self.registers[self.memory[self.rPC + 2]] = self.memory[memoryLocation]
         self.rPC += 3
     }
@@ -312,32 +346,39 @@ class PartialVM {
         //incomplete
     }
     func addir() {
-        guard self.rPC + 2 < self.memory.count else {
-            print("Not enough to complete function. Program terminated.")
+        guard self.rPC + 2 < self.memorySize else {
+            print("Invalid memory location \(self.memorySize). Program terminated.")
             self.running = false
             return
         }
-        guard validRegister(self.memory[self.rPC + 2]) else {
-            print("Invalid registers. Function could not be completed.")
-            self.rPC += 3
+        let register = self.memory[self.rPC + 2]
+        guard validRegister(register) else {
+            print("Invalid register specified at \(self.rPC + 2). Program terminated.")
+            self.running = false
             return
         }
-        self.registers[self.memory[self.rPC + 2]] += self.memory[self.rPC + 1]
+        self.registers[register] += self.memory[self.rPC + 1]
         self.rPC += 3
     }
     func addrr() {
-        guard self.rPC + 2 < self.memory.count else {
-            print("Not enough to complete function. Program terminated.")
+        guard self.rPC + 2 < self.memorySize else {
+            print("Invalid memory location \(self.memorySize). Program terminated.")
             self.running = false
             return
         }
-        guard validRegister(self.memory[self.rPC + 1]) && validRegister(self.memory[self.rPC + 2]) else {
-            print("Invalid registers. Function could not be completed.")
-            self.rPC += 3
+        let register1 = self.memory[self.rPC + 1]
+        let register2 = self.memory[self.rPC + 2]
+        guard validRegister(register1) else {
+            print("Invalid register specified at \(self.rPC + 1). Program terminated.")
+            self.running = false
             return
         }
-        let registerValue = self.registers[self.memory[self.rPC + 1]]
-        self.registers[self.memory[self.rPC + 2]] += registerValue
+        guard validRegister(register2) else {
+            print("Invalid register specified at \(self.rPC + 2). Program terminated.")
+            self.running = false
+            return
+        }
+        self.registers[register2] += self.registers[register1]
         self.rPC += 3
     }
     func addmr() {
@@ -401,19 +442,24 @@ class PartialVM {
         //incomplete
     }
     func cmprr() {
-        guard self.rPC + 2 < self.memory.count else {
-            print("Not enough to complete function. Program terminated.")
+        guard self.rPC + 2 < self.memorySize else {
+            print("Invalid memory location \(self.memorySize). Program terminated.")
             self.running = false
             return
         }
-        guard validRegister(self.memory[self.rPC + 1]) && validRegister(self.memory[self.rPC + 2]) else {
-            print("Invalid registers. Function could not be completed.")
-            self.rPC += 3
+        let register1 = self.memory[self.rPC + 1]
+        let register2 = self.memory[self.rPC + 2]
+        guard validRegister(register1) else {
+            print("Invalid register specified at \(self.rPC + 1). Program terminated.")
+            self.running = false
             return
         }
-        let r1value = self.registers[self.memory[self.rPC + 1]]
-        let r2value = self.registers[self.memory[self.rPC + 2]]
-        self.rCP = r1value == r2value
+        guard validRegister(register2) else {
+            print("Invalid register specified at \(self.rPC + 2). Program terminated.")
+            self.running = false
+            return
+        }
+        self.rCP = self.registers[register1] == self.registers[register2]
         self.rPC += 3
     }
     func cmpmr() {
@@ -447,17 +493,18 @@ class PartialVM {
         //incomplete
     }
     func outcr() {
-        guard self.rPC + 1 < self.memory.count else {
-            print("Not enough to complete function. Program terminated.")
+        guard self.rPC + 1 < self.memorySize else {
+            print("Invalid memory location \(self.memorySize). Program terminated.")
             self.running = false
             return
         }
-        guard validRegister(self.memory[self.rPC + 1]) else {
-            print("Invalid register. Function could not be completed.")
-            self.rPC += 2
+        let register = self.memory[self.rPC + 1]
+        guard validRegister(register) else {
+            print("Invalid register specified at \(self.rPC + 1). Program terminated.")
+            self.running = false
             return
         }
-        print(unicodeValueToCharacter(self.registers[self.memory[self.rPC + 1]]), terminator: "")
+        print(unicodeValueToCharacter(self.registers[register]), terminator: "")
         self.rPC += 2
     }
     func outcx() {
@@ -470,17 +517,18 @@ class PartialVM {
         //incomplete
     }
     func printi() {
-        guard self.rPC + 1 < self.memory.count else {
-            print("Not enough to complete function. Program terminated.")
+        guard self.rPC + 1 < self.memorySize else {
+            print("Invalid memory location \(self.memorySize). Program terminated.")
             self.running = false
             return
         }
-        guard validRegister(self.memory[self.rPC + 1]) else {
-            print("Invalid register. Function could not be completed.")
-            self.rPC += 2
+        let register = self.memory[self.rPC + 1]
+        guard validRegister(register) else {
+            print("Invalid register specified at \(self.rPC + 1). Program terminated.")
+            self.running = false
             return
         }
-        print(self.registers[self.memory[self.rPC + 1]], terminator: "")
+        print(self.registers[register], terminator: "")
         self.rPC += 2
     }
     func readc() {
@@ -499,15 +547,15 @@ class PartialVM {
         //incomplete
     }
     func outs() {
-        guard self.rPC + 1 < self.memory.count else {
-            print("Not enough to complete function. Program terminated.")
+        guard self.rPC + 1 < self.memorySize else {
+            print("Invalid memory location \(self.memorySize). Program terminated.")
             self.running = false
             return
         }
         let memoryLocation = self.memory[self.rPC + 1]
         guard validMemoryLocation(memoryLocation) else {
-            print("Invalid memory location \(memoryLocation). String could not be printed.")
-            self.rPC += 2
+            print("Invalid memory location spcified at \(self.rPC + 1). String could not be printed.")
+            self.running = false
             return
         }
         print(makeString(memoryLocation: memoryLocation), terminator: "")
@@ -517,15 +565,15 @@ class PartialVM {
         //incomplete
     }
     func jmpne() {
-        guard self.rPC + 1 < self.memory.count else {
-            print("Not enough to complete function. Program terminated.")
+        guard self.rPC + 1 < self.memorySize else {
+            print("Invalid memory location \(self.memorySize). Program terminated.")
             self.running = false
             return
         }
         let memoryLocation = self.memory[self.rPC + 1]
         guard validMemoryLocation(memoryLocation) else {
-            print("Invalid memory location \(memoryLocation). Jump could not be completed.")
-            self.rPC += 2
+            print("Invalid memory location spcified at \(self.rPC + 1). String could not be printed.")
+            self.running = false
             return
         }
         if self.rCP {
@@ -540,7 +588,7 @@ class PartialVM {
     }
     
     func validMemoryLocation(_ m: Int) -> Bool {
-        return m >= 2 && m < self.memory.count
+        return m >= 2 && m < self.memorySize
     }
     func makeString(memoryLocation: Int) -> String {
         var returnString = ""
