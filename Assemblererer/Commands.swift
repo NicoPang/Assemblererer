@@ -17,7 +17,7 @@ enum Command: Int {
 //m - memory location (label or not, doesn't matter for binary)
 //b - count - needs to go first, all proceeding characters are guaranteed memory locations in some respect and will take count into effect
 
-
+/*
 let commands: [Command : String] = [
     .halt : "",
     .clrr : "r",
@@ -79,3 +79,4 @@ let commands: [Command : String] = [
     .jmpne : "m"
     
 ]
+*/
