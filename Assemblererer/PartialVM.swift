@@ -6,6 +6,13 @@
 //  Copyright © 2019 Nick's Projects. All rights reserved.
 //
 
+
+//Illegal register
+//Illegal memory address
+//Illegal instruction
+//Divide by zero
+//Stack overflow
+//Bad stack operation
 import Foundation
 
 class PartialVM {
