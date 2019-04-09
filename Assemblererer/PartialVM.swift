@@ -20,9 +20,10 @@ class PartialVM {
     var memory: [Int] = []
     var running = false
     var rPC = 0
-    var rCP = false
+    var rCP = 0
     var memorySize = 0
     var start = 0
+    var stack = Stack<Int>(size: 10000, initial: 0)
     
     func inputBinary(_ binary: [Int]) {
         guard binary.count > 3 else {
@@ -83,7 +84,7 @@ class PartialVM {
         case 8 :
             self.movmr()
         case 9 :
-            self.movxr()
+            self.movmr()
         case 10 :
             self.movar()
         case 11 :
@@ -95,7 +96,7 @@ class PartialVM {
         case 14 :
             self.addmr()
         case 15 :
-            self.addxr()
+            self.addmr()
         case 16 :
             self.subir()
         case 17 :
@@ -103,7 +104,7 @@ class PartialVM {
         case 18 :
             self.submr()
         case 19 :
-            self.subxr()
+            self.submr()
         case 20 :
             self.mulir()
         case 21 :
@@ -111,7 +112,7 @@ class PartialVM {
         case 22 :
             self.mulmr()
         case 23 :
-            self.mulxr()
+            self.mulmr()
         case 24 :
             self.divir()
         case 25 :
@@ -119,7 +120,7 @@ class PartialVM {
         case 26 :
             self.divmr()
         case 27 :
-            self.divxr()
+            self.divmr()
         case 28 :
             self.jmp()
         case 29 :
@@ -233,7 +234,7 @@ class PartialVM {
             return
         }
         
-        self.registers[vars[1]] = self.memory[vars[0]]
+        self.registers[vars[1]] = vars[0]
         self.rPC += 1
     }
     func movrr() {
@@ -255,15 +256,6 @@ class PartialVM {
         self.rPC += 1
     }
     func movmr() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        self.registers[vars[1]] = self.memory[vars[0]]
-        self.rPC += 1
-    }
-    func movxr() {
         guard let vars = processErrorsAndVariables() else {
             self.running = false
             return
@@ -311,64 +303,183 @@ class PartialVM {
         self.rPC += 1
     }
     func addmr() {
-        //incomplete
-    }
-    func addxr() {
-        //incomplete
+        guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        
+        self.registers[vars[1]] += self.memory[vars[0]]
+        self.rPC += 1
     }
     func subir() {
-        //incomplete
+        guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        
+        self.registers[vars[1]] -= vars[0]
+        self.rPC += 1
     }
     func subrr() {
-        //incomplete
+        guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        
+        self.registers[vars[1]] -= self.registers[vars[0]]
+        self.rPC += 1
     }
     func submr() {
-        //incomplete
-    }
-    func subxr() {
-        //incomplete
+        guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        
+        self.registers[vars[1]] -= self.memory[vars[0]]
+        self.rPC += 1
     }
     func mulir() {
-        //incomplete
+        guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        
+        self.registers[vars[1]] *= vars[0]
+        self.rPC += 1
     }
     func mulrr() {
-        //incomplete
+        guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        
+        self.registers[vars[1]] *= self.registers[vars[0]]
+        self.rPC += 1
     }
     func mulmr() {
-        //incomplete
-    }
-    func mulxr() {
-        //incomplete
+        guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        
+        self.registers[vars[1]] *= self.memory[vars[0]]
+        self.rPC += 1
     }
     func divir() {
-        //incomplete
+        guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        
+        if vars[0] == 0 {
+            print("Divide by 0 error. Program termianted.")
+            self.running = false
+            return
+        }
+        
+        self.registers[vars[1]] /= vars[0]
+        self.rPC += 1
     }
     func divrr() {
-        //incomplete
+        guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        if self.registers[vars[0]] == 0 {
+            print("Divide by 0 error. Program termianted.")
+            self.running = false
+            return
+        }
+        
+        self.registers[vars[1]] /= self.registers[vars[0]]
+        self.rPC += 1
     }
     func divmr() {
-        //incomplete
-    }
-    func divxr() {
-        //incomplete
+        guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        if self.memory[vars[0]] == 0 {
+            print("Divide by 0 error. Program termianted.")
+            self.running = false
+            return
+        }
+        
+        self.registers[vars[1]] /= self.memory[vars[0]]
+        self.rPC += 1
     }
     func jmp() {
-        //incomplete
+        guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        
+        self.rPC = vars[0]
     }
     func sojz() {
-        //incomplete
+        guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        
+        self.registers[vars[0]] -= 1
+        
+        if self.registers[vars[0]] == 0 {
+            self.rPC = vars[1]
+            return
+        }
+        self.rPC += 1
     }
     func sojnz() {
-        //incomplete
+        guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        
+        self.registers[vars[0]] -= 1
+        
+        if self.registers[vars[0]] != 0 {
+            self.rPC = vars[1]
+            return
+        }
+        self.rPC += 1
     }
     func aojz() {
-        //incomplete
+        guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        
+        self.registers[vars[0]] += 1
+        
+        if self.registers[vars[0]] == 0 {
+            self.rPC = vars[1]
+            return
+        }
+        self.rPC += 1
     }
     func aojnz() {
-        //incomplete
+        guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        
+        self.registers[vars[0]] += 1
+        
+        if self.registers[vars[0]] != 0 {
+            self.rPC = vars[1]
+            return
+        }
+        self.rPC += 1
     }
     func cmpir() {
-        //incomplete
+        guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        
+        self.rCP = vars[0] - self.registers[vars[1]]
+        self.rPC += 1
     }
     func cmprr() {
         guard let vars = processErrorsAndVariables() else {
@@ -376,35 +487,129 @@ class PartialVM {
             return
         }
         
-        self.rCP = self.registers[vars[1]] == self.registers[vars[0]]
+        self.rCP = self.registers[vars[0]] - self.registers[vars[1]]
         self.rPC += 1
     }
     func cmpmr() {
-        //incomplete
+        guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        
+        self.rCP = self.memory[vars[0]] - self.registers[vars[1]]
+        self.rPC += 1
     }
     func jmpn() {
-        //incomplete
+        guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        
+        if self.rCP < 0 {
+            self.rPC += 1
+            return
+        }
+        self.rPC = vars[0]
     }
     func jmpz() {
-        //incomplete
+        guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        
+        if self.rCP == 0 {
+            self.rPC += 1
+            return
+        }
+        self.rPC = vars[0]
     }
     func jmpp() {
-        //incomplete
+        guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        
+        if self.rCP > 0 {
+            self.rPC += 1
+            return
+        }
+        self.rPC = vars[0]
     }
     func jsr() {
-        //incomplete
+        self.stack.push(element: self.rPC)
+        guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        
+        for i in 5...9 {
+            guard getStackCondition() != 1 else {
+                print("Stack is full. Program terminated.")
+                self.running = false
+                return
+            }
+            self.stack.push(element: self.registers[i])
+        }
+        self.rPC = vars[0]
     }
     func ret() {
-        //incomplete
+        var count = 0
+        for i in 5...9 {
+            guard getStackCondition() != 2 else {
+                print("Stack is empty. Program terminated.")
+                self.running = false
+                return
+            }
+            //they go in from 9 to 5
+            self.registers[5 + 9 - i] = self.stack.pop()!
+            count += 1
+        }
+        guard getStackCondition() != 2 else {
+            print("Stack is empty. Program terminated.")
+            self.running = false
+            return
+        }
+        self.rPC = self.stack.pop()!
+        self.rPC += 2
     }
     func push() {
-        //incomplete
+        guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        
+        guard getStackCondition() != 1 else {
+            print("Stack is full. Program terminated.")
+            self.running = false
+            return
+        }
+        
+        self.stack.push(element: self.registers[vars[0]])
+        self.rPC += 1
     }
     func pop() {
-        //incomplete
+        guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        
+        guard getStackCondition() != 2 else {
+            print("Stack is empty. Program terminated.")
+            self.running = false
+            return
+        }
+        
+        self.registers[vars[0]] = self.stack.pop()!
+        self.rPC += 1
     }
     func stackc() {
-        //incomplete
+        guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        
+        self.registers[vars[0]] = getStackCondition()
+        self.rPC += 1
     }
     func outci() {
         guard let vars = processErrorsAndVariables() else {
@@ -425,10 +630,24 @@ class PartialVM {
         self.rPC += 1
     }
     func outcx() {
-        //incomplete
+        guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        
+        print(unicodeValueToCharacter(self.memory[vars[0]]), terminator: "")
+        self.rPC += 1
     }
     func outcb() {
-        //incomplete
+        guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        
+        for count in 0..<(vars[1]) {
+            print(unicodeValueToCharacter(self.memory[vars[0] + count]), terminator: "")
+        }
+        self.rPC += 1
     }
     func readi() {
         //incomplete
@@ -452,10 +671,22 @@ class PartialVM {
         //incomplete
     }
     func movrx() {
-        //incomplete
+         guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        
+        self.memory[vars[1]] = self.registers[vars[0]]
+        self.rPC += 1
     }
     func movxx() {
-        //incomplete
+        guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        
+        self.memory[vars[1]] = self.memory[vars[0]]
+        self.rPC += 1
     }
     func outs() {
         guard let vars = processErrorsAndVariables() else {
@@ -467,7 +698,7 @@ class PartialVM {
         self.rPC += 1
     }
     func nop () {
-        //incomplete
+        self.rPC += 1
     }
     func jmpne() {
         guard let vars = processErrorsAndVariables() else {
@@ -475,7 +706,7 @@ class PartialVM {
             return
         }
         
-        if self.rCP {
+        if self.rCP != 0 {
             self.rPC += 1
             return
         }
@@ -580,10 +811,20 @@ class PartialVM {
     
     func makeString(memoryLocation: Int) -> String {
         var returnString = ""
-        for e in (memoryLocation + 1)...(memoryLocation + self.memory[memoryLocation]) {
-            returnString += String(unicodeValueToCharacter(self.memory[e]))
+        for count in (memoryLocation + 1)...(memoryLocation + self.memory[memoryLocation]) {
+            returnString += String(unicodeValueToCharacter(self.memory[count]))
         }
         return returnString
+    }
+    //0 is ok, 1 is full, 2 is empty
+    func getStackCondition() -> Int {
+        if self.stack.isFull() {
+            return 1
+        }
+        else if self.stack.isEmpty() {
+            return 2
+        }
+        return 0
     }
 }
 
