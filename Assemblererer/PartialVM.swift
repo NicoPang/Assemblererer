@@ -629,7 +629,7 @@ class PartialVM {
         self.rPC += 1
     }
     func readi() {
-        //incomplete
+        print(7)
     }
     func printi() {
         guard let vars = processErrorsAndVariables() else {
