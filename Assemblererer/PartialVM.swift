@@ -69,9 +69,7 @@ class PartialVM {
             self.halt()
         case 1 :
             self.clrr()
-        case 2 :
-            self.clrx()
-        case 3 :
+        case 2, 3 :
             self.clrm()
         case 4 :
             self.clrb()
@@ -81,9 +79,7 @@ class PartialVM {
             self.movrr()
         case 7 :
             self.movrm()
-        case 8 :
-            self.movmr()
-        case 9 :
+        case 8, 9 :
             self.movmr()
         case 10 :
             self.movar()
@@ -93,33 +89,25 @@ class PartialVM {
             self.addir()
         case 13 :
             self.addrr()
-        case 14 :
-            self.addmr()
-        case 15 :
+        case 14, 15 :
             self.addmr()
         case 16 :
             self.subir()
         case 17 :
             self.subrr()
-        case 18 :
-            self.submr()
-        case 19 :
+        case 18, 19 :
             self.submr()
         case 20 :
             self.mulir()
         case 21 :
             self.mulrr()
-        case 22 :
-            self.mulmr()
-        case 23 :
+        case 22, 23 :
             self.mulmr()
         case 24 :
             self.divir()
         case 25 :
             self.divrr()
-        case 26 :
-            self.divmr()
-        case 27 :
+        case 26, 27 :
             self.divmr()
         case 28 :
             self.jmp()
@@ -197,15 +185,6 @@ class PartialVM {
         }
         
         self.registers[vars[0]] = 0
-        self.rPC += 1
-    }
-    func clrx() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        self.memory[vars[0]] = 0
         self.rPC += 1
     }
     func clrm() {
@@ -662,9 +641,25 @@ class PartialVM {
         self.rPC += 1
     }
     func readc() {
-        //incomplete
+        guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        
+        var inputCharacter = ""
+        while inputCharacter == "" {
+            print("Input a character. The first will be taken if multiple are submitted.")
+            inputCharacter = readLine()!
+        }
+        
+        self.registers[vars[0]] = characterToUnivodeValue(inputCharacter.removeFirst())
+        self.rPC += 1
     }
     func readln() {
+        guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
         //incomplete
     }
     func brk() {
@@ -713,8 +708,6 @@ class PartialVM {
         self.rPC = vars[0]
     }
     
-    //true for no errors
-    //function will return the exact values needed
     func processErrorsAndVariables() -> [Int]? {
         var processedVariables: [Int] = []
         
@@ -754,7 +747,7 @@ class PartialVM {
     func processInteger(_ location: Int) -> Int {
         return self.memory[location]
     }
-    //returns register number
+    //returns a register number
     func processRegister(_ location: Int) -> Int? {
         let r = self.memory[location]
         if validRegister(r) {
@@ -763,7 +756,7 @@ class PartialVM {
         print("Invalid register \(r) specified in memory location \(location). Program terminated.")
         return nil
     }
-    //returns memory location in register
+    //returns a memory location
     func processMemoryLocationInRegister(_ location: Int) -> Int? {
         guard let r = processRegister(location) else {
             return nil
@@ -775,7 +768,7 @@ class PartialVM {
         print("Invalid memory location \(m) specified in register \(r). Program termianted.")
         return nil
     }
-    //returns memory location
+    //returns a memory location
     func processMemoryLocation(_ location: Int) -> Int? {
         let m = self.memory[location]
         if validMemoryLocation(m) {
@@ -784,7 +777,7 @@ class PartialVM {
         print("Invalid memory location \(m) specified in memory location \(location). Program termianted.")
         return nil
     }
-    //returns count
+    //returns the count
     func processCount(_ location: Int, memoryLocations: [Int]) -> Int? {
         let count = self.memory[location]
         for memoryLocation in memoryLocations {
