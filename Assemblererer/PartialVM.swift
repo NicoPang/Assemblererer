@@ -635,13 +635,16 @@ class PartialVM {
         }
         
         var input = ""
+        print("Input an integer: ", terminator: "")
+        input = readLine()!
         
-        while Int(input) == nil {
-            print("Input an integer: ", terminator: "")
-            input = readLine()!
+        guard let integer = Int(input) else {
+            self.registers[vars[1]] = 1
+            return
         }
         
-        self.registers[vars[0]] = Int(input)!
+        self.registers[vars[0]] = integer
+        self.registers[vars[1]] = 0
         self.rPC += 1
     }
     func printi() {
