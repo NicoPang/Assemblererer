@@ -782,7 +782,7 @@ class PartialVM {
         let count = self.memory[location]
         for memoryLocation in memoryLocations {
             let newMemoryLocation = memoryLocation + count
-            if !validMemoryLocation(memoryLocation + count) {
+            if !validMemoryLocation(newMemoryLocation) {
                 print("Invalid memory location \(self.memorySize). Program terminated.")
                 return nil
             }
