@@ -69,7 +69,7 @@ let commands: [Command : String] = [
     .readi : "rr",
     .printi : "r",
     .readc : "r",
-    .readln : "mb",
+    .readln : "mr",
     .brk : "",
     .movrx : "rx",
     .movxx : "xx",

@@ -629,7 +629,20 @@ class PartialVM {
         self.rPC += 1
     }
     func readi() {
-        print(7)
+        guard let vars = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        
+        var input = ""
+        
+        while Int(input) == nil {
+            print("Input an integer: ", terminator: "")
+            input = readLine()!
+        }
+        
+        self.registers[vars[0]] = Int(input)!
+        self.rPC += 1
     }
     func printi() {
         guard let vars = processErrorsAndVariables() else {
@@ -648,7 +661,7 @@ class PartialVM {
         
         var inputCharacter = ""
         while inputCharacter == "" {
-            print("Input a character. The first will be taken if multiple are submitted.")
+            print("Input a character (the first will be taken if multiple are submitted): ", terminator: "")
             inputCharacter = readLine()!
         }
         
@@ -660,7 +673,28 @@ class PartialVM {
             self.running = false
             return
         }
-        //incomplete
+        
+        var input = ""
+        while input == "" {
+            print("Input a line: ", terminator: "")
+            input = readLine()!
+        }
+        
+        let characters = Array(input)
+        let count = characters.count
+        
+        guard validMemoryLocation(vars[0] + characters.count) else {
+            print("Invalid memory location \(self.memorySize). Program terminated.")
+            self.running = false
+            return
+        }
+        
+        for i in 0..<count {
+            self.memory[vars[0] + i] = characterToUnivodeValue(characters[i])
+        }
+        
+        self.registers[vars[1]] = count
+        self.rPC += 1
     }
     func brk() {
         //incomplete
