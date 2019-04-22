@@ -8,7 +8,7 @@
 
 import Foundation
 
-func fit(s: String, size: Int, replacement: Character, right: Bool) -> String {
+public func fit(s: String, size: Int, replacement: Character, right: Bool) -> String {
     let sSize = s.count
     if sSize == size {
         return s
@@ -26,26 +26,33 @@ func fit(s: String, size: Int, replacement: Character, right: Bool) -> String {
 }
 
 
-func characterToUnivodeValue(_ c: Character) -> Int{
+public func characterToUnivodeValue(_ c: Character) -> Int{
     return Int(c.unicodeScalars[c.unicodeScalars.startIndex].value)
 }
 
-func unicodeValueToCharacter(_ n: Int) -> Character{
+public func unicodeValueToCharacter(_ n: Int) -> Character{
     return Character(UnicodeScalar(n)!)
 }
 
-func stringToUnicodeValues(_ s: String) -> [Int] {
+public func stringToUnicodeValues(_ s: String) -> [Int] {
     let characters = Array(s)
     return characters.map{Int($0.unicodeScalars[$0.unicodeScalars.startIndex].value)}
 }
 
-func splitStringIntoParts(_ expression: String) -> [String] {
+public func splitStringIntoParts(_ expression: String) -> [String] {
     return expression.components(separatedBy: " ")
 }
-func splitStringIntoLines(_ expression: String) -> [String] {
+public func splitStringIntoLines(_ expression: String) -> [String] {
     return expression.components(separatedBy: "\n")
 }
-
-func splitBinaryFile(_ s: String) throws -> [Int] {
+public func splitBinaryFile(_ s: String) throws -> [Int] {
     return s.components(separatedBy: CharacterSet(charactersIn: "\n ,")).map{Int($0)!}
+}
+
+public func readTextFile(_ path: String) throws -> String {
+    let text = try String(contentsOfFile: path, encoding: String.Encoding.utf8)
+    return text
+}
+public func writeTextFile(_ path: String, data: String) throws {
+    try data.write(to: NSURL.fileURL(withPath: path), atomically: true, encoding: String.Encoding.utf8)
 }

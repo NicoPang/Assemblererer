@@ -24,7 +24,7 @@ class PartialVM {
     var memorySize = 0
     var start = 0
     var stack = Stack<Int>(size: 10000, initial: 0)
-    
+    /////////////actual vm code
     func inputBinary(_ binary: [Int]) {
         guard binary.count > 3 else {
             print("No memory found.")
@@ -744,7 +744,7 @@ class PartialVM {
         }
         self.rPC = vars[0]
     }
-    
+    ///////////// Other helper functions
     func processErrorsAndVariables() -> [Int]? {
         var processedVariables: [Int] = []
         

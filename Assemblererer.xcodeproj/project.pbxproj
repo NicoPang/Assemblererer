@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		01007192226DDF00007ADE9F /* SAPUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01007191226DDF00007ADE9F /* SAPUI.swift */; };
 		01339DD8225D2DD600347D7F /* Stack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01339DD7225D2DD600347D7F /* Stack.swift */; };
 		01339DDA225FC44A00347D7F /* Assembler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01339DD9225FC44A00347D7F /* Assembler.swift */; };
 		01E72E83224BDB4900F2D704 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E72E82224BDB4900F2D704 /* main.swift */; };
@@ -28,6 +29,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		01007191226DDF00007ADE9F /* SAPUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SAPUI.swift; sourceTree = "<group>"; };
 		01339DD7225D2DD600347D7F /* Stack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stack.swift; sourceTree = "<group>"; };
 		01339DD9225FC44A00347D7F /* Assembler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assembler.swift; sourceTree = "<group>"; };
 		01E72E7F224BDB4900F2D704 /* Assemblererer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Assemblererer; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -70,6 +72,7 @@
 				01E72E82224BDB4900F2D704 /* main.swift */,
 				01E72E89224BDBC600F2D704 /* PartialVM.swift */,
 				01339DD9225FC44A00347D7F /* Assembler.swift */,
+				01007191226DDF00007ADE9F /* SAPUI.swift */,
 				01E72E8B224BDC7A00F2D704 /* Support.swift */,
 				01E72E8D224BDC9800F2D704 /* Commands.swift */,
 				01339DD7225D2DD600347D7F /* Stack.swift */,
@@ -144,6 +147,7 @@
 			files = (
 				01E72E8A224BDBC600F2D704 /* PartialVM.swift in Sources */,
 				01339DD8225D2DD600347D7F /* Stack.swift in Sources */,
+				01007192226DDF00007ADE9F /* SAPUI.swift in Sources */,
 				01E72E83224BDB4900F2D704 /* main.swift in Sources */,
 				01E72E8C224BDC7A00F2D704 /* Support.swift in Sources */,
 				01339DDA225FC44A00347D7F /* Assembler.swift in Sources */,
