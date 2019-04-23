@@ -56,3 +56,14 @@ public func readTextFile(_ path: String) throws -> String {
 public func writeTextFile(_ path: String, data: String) throws {
     try data.write(to: NSURL.fileURL(withPath: path), atomically: true, encoding: String.Encoding.utf8)
 }
+
+func stringToCommand(_ s: String) -> Command? {
+    for rawValue in 0..<Command.allCases.count {
+        let command = Command(rawValue: rawValue)
+        if String(describing: command!) == s {
+            return command
+        }
+    }
+    return nil
+}
+

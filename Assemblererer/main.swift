@@ -16,4 +16,3 @@ let factorialProgram = [56, 2, 3, 10, 8, 0, 5, 8, 1, 6, 6, 5, 1, 39, 22, 39, 47,
 var pvm = PartialVM()
 pvm.inputBinary(doublesProgram)
 pvm.run()
-
