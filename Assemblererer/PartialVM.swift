@@ -64,111 +64,116 @@ class PartialVM {
             self.running = false
             return
         }
-        switch self.memory[self.rPC] {
-        case 0 :
+        let command = Command.init(rawValue: self.memory[self.rPC])
+        guard let args = processErrorsAndVariables() else {
+            self.running = false
+            return
+        }
+        switch command! {
+        case .halt :
             self.halt()
-        case 1 :
-            self.clrr()
-        case 2, 3 :
-            self.clrm()
-        case 4 :
-            self.clrb()
-        case 5 :
-            self.movir()
-        case 6 :
-            self.movrr()
-        case 7 :
-            self.movrm()
-        case 8, 9 :
-            self.movmr()
-        case 10 :
-            self.movar()
-        case 11 :
-            self.movb()
-        case 12 :
-            self.addir()
-        case 13 :
-            self.addrr()
-        case 14, 15 :
-            self.addmr()
-        case 16 :
-            self.subir()
-        case 17 :
-            self.subrr()
-        case 18, 19 :
-            self.submr()
-        case 20 :
-            self.mulir()
-        case 21 :
-            self.mulrr()
-        case 22, 23 :
-            self.mulmr()
-        case 24 :
-            self.divir()
-        case 25 :
-            self.divrr()
-        case 26, 27 :
-            self.divmr()
-        case 28 :
-            self.jmp()
-        case 29 :
-            self.sojz()
-        case 30 :
-            self.sojnz()
-        case 31 :
-            self.aojz()
-        case 32 :
-            self.aojnz()
-        case 33 :
-            self.cmpir()
-        case 34 :
-            self.cmprr()
-        case 35 :
-            self.cmpmr()
-        case 36 :
-            self.jmpn()
-        case 37 :
-            self.jmpz()
-        case 38 :
-            self.jmpp()
-        case 39 :
-            self.jsr()
-        case 40 :
+        case .clrr :
+            self.clrr(args)
+        case .clrm, .clrx :
+            self.clrm(args)
+        case .clrb :
+            self.clrb(args)
+        case .movir :
+            self.movir(args)
+        case .movrr :
+            self.movrr(args)
+        case .movrm :
+            self.movrm(args)
+        case .movmr, .movxr :
+            self.movmr(args)
+        case .movar :
+            self.movar(args)
+        case .movb :
+            self.movb(args)
+        case .addir :
+            self.addir(args)
+        case .addrr :
+            self.addrr(args)
+        case .addmr, .addxr :
+            self.addmr(args)
+        case .subir :
+            self.subir(args)
+        case .subrr :
+            self.subrr(args)
+        case .submr, .subxr :
+            self.submr(args)
+        case .mulir :
+            self.mulir(args)
+        case .mulrr :
+            self.mulrr(args)
+        case .mulmr, .mulxr :
+            self.mulmr(args)
+        case .divir :
+            self.divir(args)
+        case .divrr :
+            self.divrr(args)
+        case .divmr, .divxr :
+            self.divmr(args)
+        case .jmp :
+            self.jmp(args)
+        case .sojz :
+            self.sojz(args)
+        case .sojnz :
+            self.sojnz(args)
+        case .aojz :
+            self.aojz(args)
+        case .aojnz :
+            self.aojnz(args)
+        case .cmpir :
+            self.cmpir(args)
+        case .cmprr :
+            self.cmprr(args)
+        case .cmpmr :
+            self.cmpmr(args)
+        case .jmpn :
+            self.jmpn(args)
+        case .jmpz :
+            self.jmpz(args)
+        case .jmpp :
+            self.jmpp(args)
+        case .jsr :
+            self.jsr(args)
+        case .ret :
             self.ret()
-        case 41 :
-            self.push()
-        case 42 :
-            self.pop()
-        case 43 :
-            self.stackc()
-        case 44 :
-            self.outci()
-        case 45 :
-            self.outcr()
-        case 46 :
-            self.outcx()
-        case 47 :
-            self.outcb()
-        case 48 :
-            self.readi()
-        case 49 :
-            self.printi()
-        case 50 :
-            self.readc()
-        case 51 :
-            self.readln()
-        case 52 :
+        case .push :
+            self.push(args)
+        case .pop :
+            self.pop(args)
+        case .stackc :
+            self.stackc(args)
+        case .outci :
+            self.outci(args)
+        case .outcr :
+            self.outcr(args)
+        case .outcx :
+            self.outcx(args)
+        case .outcb :
+            self.outcb(args)
+        case .readi :
+            self.readi(args)
+        case .printi :
+            self.printi(args)
+        case .readc :
+            self.readc(args)
+        case .readln :
+            self.readln(args)
+        case .brk :
             self.brk()
-        case 53 :
-            self.movrx()
-        case 54 :
-            self.movxx()
-        case 55 :
-            self.outs()
-        case 56 :
+        case .movrx :
+            self.movrx(args)
+        case .movxx :
+            self.movxx(args)
+        case .outs :
+            self.outs(args)
+        case .nop :
             self.nop()
-        case 57 :
-            self.jmpne()
+        case .jmpne :
+            self.jmpne(args)
         default :
             print("Invalid command at \(self.rPC). Program terminated.")
             self.running = false
@@ -178,349 +183,187 @@ class PartialVM {
     func halt() {
         self.running = false
     }
-    func clrr() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        self.registers[vars[0]] = 0
+    func clrr(_ args: [Int]) {
+        self.registers[args[0]] = 0
         self.rPC += 1
     }
-    func clrm() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        self.memory[vars[0]] = 0
+    func clrm(_ args: [Int]) {
+        self.memory[args[0]] = 0
         self.rPC += 1
     }
-    func clrb() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        for m in vars[0]..<(vars[0] + vars[1]) {
+    func clrb(_ args: [Int]) {
+        for m in args[0]..<(args[0] + args[1]) {
             self.memory[m] = 0
         }
         self.rPC += 1
     }
-    func movir() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        self.registers[vars[1]] = vars[0]
+    func movir(_ args: [Int]) {
+        self.registers[args[1]] = args[0]
         self.rPC += 1
     }
-    func movrr() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        self.registers[vars[1]] = self.registers[vars[0]]
+    func movrr(_ args: [Int]) {
+        self.registers[args[1]] = self.registers[args[0]]
         self.rPC += 1
     }
-    func movrm() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        self.memory[vars[1]] = self.registers[vars[0]]
+    func movrm(_ args: [Int]) {
+        self.memory[args[1]] = self.registers[args[0]]
         self.rPC += 1
     }
-    func movmr() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        self.registers[vars[1]] = self.memory[vars[0]]
+    func movmr(_ args: [Int]) {
+        self.registers[args[1]] = self.memory[args[0]]
         self.rPC += 1
     }
-    func movar() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        self.registers[vars[1]] = vars[0]
+    func movar(_ args: [Int]) {
+        self.registers[args[1]] = args[0]
         self.rPC += 1
     }
-    func movb() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        for m in 0..<(vars[2]) {
-            self.memory[vars[1] + m] = self.memory[vars[0] + m]
+    func movb(_ args: [Int]) {
+        for m in 0..<(args[2]) {
+            self.memory[args[1] + m] = self.memory[args[0] + m]
         }
         self.rPC += 1
     }
-    func addir() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        self.registers[vars[1]] += vars[0]
+    func addir(_ args: [Int]) {
+        self.registers[args[1]] += args[0]
         self.rPC += 1
     }
-    func addrr() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        self.registers[vars[1]] += self.registers[vars[0]]
+    func addrr(_ args: [Int]) {
+        self.registers[args[1]] += self.registers[args[0]]
         self.rPC += 1
     }
-    func addmr() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        self.registers[vars[1]] += self.memory[vars[0]]
+    func addmr(_ args: [Int]) {
+        self.registers[args[1]] += self.memory[args[0]]
         self.rPC += 1
     }
-    func subir() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        self.registers[vars[1]] -= vars[0]
+    func subir(_ args: [Int]) {
+        self.registers[args[1]] -= args[0]
         self.rPC += 1
     }
-    func subrr() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        self.registers[vars[1]] -= self.registers[vars[0]]
+    func subrr(_ args: [Int]) {
+        self.registers[args[1]] -= self.registers[args[0]]
         self.rPC += 1
     }
-    func submr() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        self.registers[vars[1]] -= self.memory[vars[0]]
+    func submr(_ args: [Int]) {
+        self.registers[args[1]] -= self.memory[args[0]]
         self.rPC += 1
     }
-    func mulir() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        self.registers[vars[1]] *= vars[0]
+    func mulir(_ args: [Int]) {
+        self.registers[args[1]] *= args[0]
         self.rPC += 1
     }
-    func mulrr() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        self.registers[vars[1]] *= self.registers[vars[0]]
+    func mulrr(_ args: [Int]) {
+        self.registers[args[1]] *= self.registers[args[0]]
         self.rPC += 1
     }
-    func mulmr() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        self.registers[vars[1]] *= self.memory[vars[0]]
+    func mulmr(_ args: [Int]) {
+        self.registers[args[1]] *= self.memory[args[0]]
         self.rPC += 1
     }
-    func divir() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        if vars[0] == 0 {
+    func divir(_ args: [Int]) {
+        if args[0] == 0 {
             print("Divide by 0 error. Program termianted.")
             self.running = false
             return
         }
         
-        self.registers[vars[1]] /= vars[0]
+        self.registers[args[1]] /= args[0]
         self.rPC += 1
     }
-    func divrr() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        if self.registers[vars[0]] == 0 {
+    func divrr(_ args: [Int]) {
+        if self.registers[args[0]] == 0 {
             print("Divide by 0 error. Program termianted.")
             self.running = false
             return
         }
         
-        self.registers[vars[1]] /= self.registers[vars[0]]
+        self.registers[args[1]] /= self.registers[args[0]]
         self.rPC += 1
     }
-    func divmr() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        if self.memory[vars[0]] == 0 {
+    func divmr(_ args: [Int]) {
+        if self.memory[args[0]] == 0 {
             print("Divide by 0 error. Program termianted.")
             self.running = false
             return
         }
         
-        self.registers[vars[1]] /= self.memory[vars[0]]
+        self.registers[args[1]] /= self.memory[args[0]]
         self.rPC += 1
     }
-    func jmp() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        self.rPC = vars[0]
+    func jmp(_ args: [Int]) {
+        self.rPC = args[0]
     }
-    func sojz() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
+    func sojz(_ args: [Int]) {
+        self.registers[args[0]] -= 1
         
-        self.registers[vars[0]] -= 1
-        
-        if self.registers[vars[0]] == 0 {
-            self.rPC = vars[1]
+        if self.registers[args[0]] == 0 {
+            self.rPC = args[1]
             return
         }
         self.rPC += 1
     }
-    func sojnz() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
+    func sojnz(_ args: [Int]) {
+        self.registers[args[0]] -= 1
         
-        self.registers[vars[0]] -= 1
-        
-        if self.registers[vars[0]] != 0 {
-            self.rPC = vars[1]
+        if self.registers[args[0]] != 0 {
+            self.rPC = args[1]
             return
         }
         self.rPC += 1
     }
-    func aojz() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
+    func aojz(_ args: [Int]) {
+        self.registers[args[0]] += 1
         
-        self.registers[vars[0]] += 1
-        
-        if self.registers[vars[0]] == 0 {
-            self.rPC = vars[1]
+        if self.registers[args[0]] == 0 {
+            self.rPC = args[1]
             return
         }
         self.rPC += 1
     }
-    func aojnz() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
+    func aojnz(_ args: [Int]) {
+        self.registers[args[0]] += 1
         
-        self.registers[vars[0]] += 1
-        
-        if self.registers[vars[0]] != 0 {
-            self.rPC = vars[1]
+        if self.registers[args[0]] != 0 {
+            self.rPC = args[1]
             return
         }
         self.rPC += 1
     }
-    func cmpir() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        self.rCP = vars[0] - self.registers[vars[1]]
+    func cmpir(_ args: [Int]) {
+        self.rCP = args[0] - self.registers[args[1]]
         self.rPC += 1
     }
-    func cmprr() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        self.rCP = self.registers[vars[0]] - self.registers[vars[1]]
+    func cmprr(_ args: [Int]) {
+        self.rCP = self.registers[args[0]] - self.registers[args[1]]
         self.rPC += 1
     }
-    func cmpmr() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        self.rCP = self.memory[vars[0]] - self.registers[vars[1]]
+    func cmpmr(_ args: [Int]) {
+        self.rCP = self.memory[args[0]] - self.registers[args[1]]
         self.rPC += 1
     }
-    func jmpn() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
+    func jmpn(_ args: [Int]) {
         if self.rCP < 0 {
             self.rPC += 1
             return
         }
-        self.rPC = vars[0]
+        self.rPC = args[0]
     }
-    func jmpz() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
+    func jmpz(_ args: [Int]) {
         
         if self.rCP == 0 {
             self.rPC += 1
             return
         }
-        self.rPC = vars[0]
+        self.rPC = args[0]
     }
-    func jmpp() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
+    func jmpp(_ args: [Int]) {
         if self.rCP > 0 {
             self.rPC += 1
             return
         }
-        self.rPC = vars[0]
+        self.rPC = args[0]
     }
-    func jsr() {
+    func jsr(_ args: [Int]) {
         self.stack.push(element: self.rPC)
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
         for i in 5...9 {
             guard getStackCondition() != 1 else {
                 print("Stack is full. Program terminated.")
@@ -529,7 +372,7 @@ class PartialVM {
             }
             self.stack.push(element: self.registers[i])
         }
-        self.rPC = vars[0]
+        self.rPC = args[0]
     }
     func ret() {
         var count = 0
@@ -549,134 +392,79 @@ class PartialVM {
             return
         }
         self.rPC = self.stack.pop()!
-        self.rPC += 2
+        self.rPC += 1
     }
-    func push() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
+    func push(_ args: [Int]) {
         guard getStackCondition() != 1 else {
             print("Stack is full. Program terminated.")
             self.running = false
             return
         }
         
-        self.stack.push(element: self.registers[vars[0]])
+        self.stack.push(element: self.registers[args[0]])
         self.rPC += 1
     }
-    func pop() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
+    func pop(_ args: [Int]) {
         guard getStackCondition() != 2 else {
             print("Stack is empty. Program terminated.")
             self.running = false
             return
         }
         
-        self.registers[vars[0]] = self.stack.pop()!
+        self.registers[args[0]] = self.stack.pop()!
         self.rPC += 1
     }
-    func stackc() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        self.registers[vars[0]] = getStackCondition()
+    func stackc(_ args: [Int]) {
+        self.registers[args[0]] = getStackCondition()
         self.rPC += 1
     }
-    func outci() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        print(unicodeValueToCharacter(vars[0]), terminator: "")
+    func outci(_ args: [Int]) {
+        print(unicodeValueToCharacter(args[0]), terminator: "")
         self.rPC += 1
     }
-    func outcr() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        print(unicodeValueToCharacter(self.registers[vars[0]]), terminator: "")
+    func outcr(_ args: [Int]) {
+        print(unicodeValueToCharacter(self.registers[args[0]]), terminator: "")
         self.rPC += 1
     }
-    func outcx() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        print(unicodeValueToCharacter(self.memory[vars[0]]), terminator: "")
+    func outcx(_ args: [Int]) {
+        print(unicodeValueToCharacter(self.memory[args[0]]), terminator: "")
         self.rPC += 1
     }
-    func outcb() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        for count in 0..<(vars[1]) {
-            print(unicodeValueToCharacter(self.memory[vars[0] + count]), terminator: "")
+    func outcb(_ args: [Int]) {
+        for count in 0..<(args[1]) {
+            print(unicodeValueToCharacter(self.memory[args[0] + count]), terminator: "")
         }
         self.rPC += 1
     }
-    func readi() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
+    func readi(_ args: [Int]) {
         var input = ""
         print("Input an integer: ", terminator: "")
         input = readLine()!
         
         guard let integer = Int(input) else {
-            self.registers[vars[1]] = 1
+            self.registers[args[1]] = 1
             return
         }
         
-        self.registers[vars[0]] = integer
-        self.registers[vars[1]] = 0
+        self.registers[args[0]] = integer
+        self.registers[args[1]] = 0
         self.rPC += 1
     }
-    func printi() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        print(self.registers[vars[0]], terminator: "")
+    func printi(_ args: [Int]) {
+        print(self.registers[args[0]], terminator: "")
         self.rPC += 1
     }
-    func readc() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
+    func readc(_ args: [Int]) {
         var inputCharacter = ""
         while inputCharacter == "" {
             print("Input a character (the first will be taken if multiple are submitted): ", terminator: "")
             inputCharacter = readLine()!
         }
         
-        self.registers[vars[0]] = characterToUnivodeValue(inputCharacter.removeFirst())
+        self.registers[args[0]] = characterToUnivodeValue(inputCharacter.removeFirst())
         self.rPC += 1
     }
-    func readln() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
+    func readln(_ args: [Int]) {
         var input = ""
         while input == "" {
             print("Input a line: ", terminator: "")
@@ -686,63 +474,43 @@ class PartialVM {
         let characters = Array(input)
         let count = characters.count
         
-        guard validMemoryLocation(vars[0] + characters.count) else {
+        guard validMemoryLocation(args[0] + characters.count) else {
             print("Invalid memory location \(self.memorySize). Program terminated.")
             self.running = false
             return
         }
         
         for i in 0..<count {
-            self.memory[vars[0] + i] = characterToUnivodeValue(characters[i])
+            self.memory[args[0] + i] = characterToUnivodeValue(characters[i])
         }
         
-        self.registers[vars[1]] = count
+        self.registers[args[1]] = count
         self.rPC += 1
     }
     func brk() {
         //incomplete
     }
-    func movrx() {
-         guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        self.memory[vars[1]] = self.registers[vars[0]]
+    func movrx(_ args: [Int]) {
+        self.memory[args[1]] = self.registers[args[0]]
         self.rPC += 1
     }
-    func movxx() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        self.memory[vars[1]] = self.memory[vars[0]]
+    func movxx(_ args: [Int]) {
+        self.memory[args[1]] = self.memory[args[0]]
         self.rPC += 1
     }
-    func outs() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        print(makeString(memoryLocation: vars[0]), terminator: "")
+    func outs(_ args: [Int]) {
+        print(makeString(memoryLocation: args[0]), terminator: "")
         self.rPC += 1
     }
     func nop () {
         self.rPC += 1
     }
-    func jmpne() {
-        guard let vars = processErrorsAndVariables() else {
-            self.running = false
-            return
-        }
-        
-        if self.rCP != 0 {
+    func jmpne(_ args: [Int]) {
+        if self.rCP == 0 {
             self.rPC += 1
             return
         }
-        self.rPC = vars[0]
+        self.rPC = args[0]
     }
     ///////////// Other helper functions
     func processErrorsAndVariables() -> [Int]? {
