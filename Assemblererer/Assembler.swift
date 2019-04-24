@@ -9,7 +9,7 @@
 import Foundation
 
 class Assembler {
-    private var pvm = PartialVM()
+    private var pvm = FullVM()
     private var filePath = ""
     private var programName = ""
     private var counter = 0
