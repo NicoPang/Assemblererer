@@ -15,11 +15,7 @@
 //Bad stack operation
 import Foundation
 
-<<<<<<< HEAD:Assemblererer/VM.swift
-class VM {
-=======
 class FullVM {
->>>>>>> 5a03f8d787edc7f8abc39ea1514927c89876c906:Assemblererer/PartialVM.swift
     var registers: [Int] = Array<Int>(repeatElement(0, count: 10))
     var memory: [Int] = []
     var running = false
