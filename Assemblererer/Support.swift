@@ -66,4 +66,3 @@ func stringToCommand(_ s: String) -> Command? {
     }
     return nil
 }
-
