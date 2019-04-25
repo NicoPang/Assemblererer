@@ -58,9 +58,8 @@ public func writeTextFile(_ path: String, data: String) throws {
 }
 
 func stringToCommand(_ s: String) -> Command? {
-    for rawValue in 0..<Command.allCases.count {
-        let command = Command(rawValue: rawValue)
-        if String(describing: command!) == s {
+    for command in Command.allCases {
+        if String(describing: command) == s {
             return command
         }
     }

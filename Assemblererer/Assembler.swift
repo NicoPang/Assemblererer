@@ -16,20 +16,13 @@ class Assembler {
     private var binaryFile = ""
     private var labelFile = ""
     private var listingFile = ""
-    private var labels: [String : Int] = [:]
-    private var fileContents: [String] = []
+    private var labels: [String : Int?] = [:]
+    private var lines: [[Character]] = []
     private var start = ""
     //actual assembler code
     public func assemble() throws {
-        self.fileContents = try splitStringIntoLines(getFileContexts())
-        
-        for line in fileContents {
-            assembleLine(line)
-        }
-        //unfinished
-    }
-    private func assembleLine(_ line: String) {
-        //unfinished
+        //unfinished, fix line below
+        self.lines = splitStringIntoLines(try getFileContents()).map{Array($0)}
     }
     //other supporting functions
     public func setPath(_ path: String) {
@@ -38,8 +31,11 @@ class Assembler {
     public func setProgramName(_ name: String) {
         self.programName = name
     }
-    private func getFileContexts() throws -> String {
+    private func getFileContents() throws -> String {
         let text = try readTextFile(filePath + programName)
         return text
     }
 }
+
+//pass 1 - makes symbol table and tests for errors
+//pass 2 - assembles everything else
