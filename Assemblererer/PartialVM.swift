@@ -15,7 +15,7 @@
 //Bad stack operation
 import Foundation
 
-class FullVM {
+class VM {
     var registers: [Int] = Array<Int>(repeatElement(0, count: 10))
     var memory: [Int] = []
     var running = false
