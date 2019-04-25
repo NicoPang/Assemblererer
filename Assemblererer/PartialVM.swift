@@ -14,7 +14,7 @@
 //Stack overflow
 //Bad stack operation
 import Foundation
-
+ 
 class FullVM {
     var registers: [Int] = Array<Int>(repeatElement(0, count: 10))
     var memory: [Int] = []
