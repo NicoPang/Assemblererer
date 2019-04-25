@@ -13,9 +13,10 @@
 		01339DD8225D2DD600347D7F /* Stack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01339DD7225D2DD600347D7F /* Stack.swift */; };
 		01339DDA225FC44A00347D7F /* Assembler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01339DD9225FC44A00347D7F /* Assembler.swift */; };
 		01E72E83224BDB4900F2D704 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E72E82224BDB4900F2D704 /* main.swift */; };
-		01E72E8A224BDBC600F2D704 /* PartialVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E72E89224BDBC600F2D704 /* PartialVM.swift */; };
+		01E72E8A224BDBC600F2D704 /* VM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E72E89224BDBC600F2D704 /* VM.swift */; };
 		01E72E8C224BDC7A00F2D704 /* Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E72E8B224BDC7A00F2D704 /* Support.swift */; };
 		01E72E8E224BDC9800F2D704 /* Commands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E72E8D224BDC9800F2D704 /* Commands.swift */; };
+		1955FAEC2270DB680087012B /* Turing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1955FAEB2270DB680087012B /* Turing.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -38,9 +39,10 @@
 		01339DD9225FC44A00347D7F /* Assembler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assembler.swift; sourceTree = "<group>"; };
 		01E72E7F224BDB4900F2D704 /* Assemblererer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Assemblererer; sourceTree = BUILT_PRODUCTS_DIR; };
 		01E72E82224BDB4900F2D704 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
-		01E72E89224BDBC600F2D704 /* PartialVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartialVM.swift; sourceTree = "<group>"; };
+		01E72E89224BDBC600F2D704 /* VM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VM.swift; sourceTree = "<group>"; };
 		01E72E8B224BDC7A00F2D704 /* Support.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Support.swift; sourceTree = "<group>"; };
 		01E72E8D224BDC9800F2D704 /* Commands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Commands.swift; sourceTree = "<group>"; };
+		1955FAEB2270DB680087012B /* Turing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Turing.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,7 +76,8 @@
 			isa = PBXGroup;
 			children = (
 				01E72E82224BDB4900F2D704 /* main.swift */,
-				01E72E89224BDBC600F2D704 /* PartialVM.swift */,
+				01E72E89224BDBC600F2D704 /* VM.swift */,
+				1955FAEB2270DB680087012B /* Turing.swift */,
 				01339DD9225FC44A00347D7F /* Assembler.swift */,
 				01007191226DDF00007ADE9F /* SAPUI.swift */,
 				01E72E8B224BDC7A00F2D704 /* Support.swift */,
@@ -151,8 +154,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+<<<<<<< HEAD
 				01E72E8A224BDBC600F2D704 /* PartialVM.swift in Sources */,
 				010071962270E339007ADE9F /* Tuple.swift in Sources */,
+=======
+				01E72E8A224BDBC600F2D704 /* VM.swift in Sources */,
+				1955FAEC2270DB680087012B /* Turing.swift in Sources */,
+>>>>>>> 7a2401337f2b6e69386e0214090e9df0e804c6de
 				01339DD8225D2DD600347D7F /* Stack.swift in Sources */,
 				01007192226DDF00007ADE9F /* SAPUI.swift in Sources */,
 				01007194226E4E81007ADE9F /* Tokens.swift in Sources */,
