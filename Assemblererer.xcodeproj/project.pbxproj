@@ -37,7 +37,7 @@
 		01339DD7225D2DD600347D7F /* Stack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stack.swift; sourceTree = "<group>"; };
 		01339DD9225FC44A00347D7F /* Assembler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assembler.swift; sourceTree = "<group>"; };
 		01E72E7F224BDB4900F2D704 /* Assemblererer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Assemblererer; sourceTree = BUILT_PRODUCTS_DIR; };
-		01E72E82224BDB4900F2D704 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		01E72E82224BDB4900F2D704 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; wrapsLines = 1; };
 		01E72E89224BDBC600F2D704 /* PartialVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartialVM.swift; sourceTree = "<group>"; };
 		01E72E8B224BDC7A00F2D704 /* Support.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Support.swift; sourceTree = "<group>"; };
 		01E72E8D224BDC9800F2D704 /* Commands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Commands.swift; sourceTree = "<group>"; };

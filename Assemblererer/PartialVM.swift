@@ -328,6 +328,7 @@ class FullVM {
         }
         self.rPC += 1
     }
+    //negative if second is bigger, positive if second is smaller, zero if equal
     func cmpir(_ args: [Int]) {
         self.rCP = args[0] - self.registers[args[1]]
         self.rPC += 1
@@ -342,25 +343,25 @@ class FullVM {
     }
     func jmpn(_ args: [Int]) {
         if self.rCP < 0 {
-            self.rPC += 1
+            self.rPC = args[0]
             return
         }
-        self.rPC = args[0]
+        self.rPC += 1
     }
     func jmpz(_ args: [Int]) {
         
         if self.rCP == 0 {
-            self.rPC += 1
+            self.rPC = args[0]
             return
         }
-        self.rPC = args[0]
+        self.rPC += 1
     }
     func jmpp(_ args: [Int]) {
         if self.rCP > 0 {
-            self.rPC += 1
+            self.rPC = args[0]
             return
         }
-        self.rPC = args[0]
+        self.rPC += 1
     }
     func jsr(_ args: [Int]) {
         self.stack.push(element: self.rPC)
