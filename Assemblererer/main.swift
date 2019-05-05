@@ -131,6 +131,9 @@ let tupleProgram = [119, 114, 0,
     39,
     53,
     0]
-var pvm = FullVM()
+var asm = Assembler()
+print(asm.getChunksForLine(".Tuple \\1 1 1 0 r\\"))
+/*var pvm = FullVM()
 pvm.inputBinaryFromFile(path: "/Users/nick/Desktop/turing.bin")
 pvm.run()
+*/

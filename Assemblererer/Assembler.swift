@@ -17,12 +17,66 @@ class Assembler {
     private var labelFile = ""
     private var listingFile = ""
     private var labels: [String : Int?] = [:]
-    private var lines: [[Character]] = []
     private var start = ""
     //actual assembler code
-    public func assemble() throws {
-        //unfinished, fix line below
-        self.lines = splitStringIntoLines(try getFileContents()).map{Array($0)}
+    public func assemble() throws -> [String] {
+        return splitStringIntoLines(try getFileContents()).map{String($0)}
+    }
+    public func getChunks(_ lines: [String]) -> [[String]] {
+        var programInChunks: [[String]] = []
+        for line in lines {
+            programInChunks.append(getChunksForLine(line))
+        }
+        return programInChunks
+    }
+    public func getChunksForLine(_ line: String) -> [String] {
+        var chunk = ""
+        var chunks: [String] = []
+        var space = true
+        var string = false
+        var tuple = false
+        var start = true
+        for character in line {
+            if start {
+                if character == ";" {
+                    return chunks
+                }
+                if character == " " {
+                    continue
+                }
+                else if character == "\\" {
+                    tuple = true
+                    space = false
+                }
+                else if character == "\"" {
+                    string = true
+                    space = false
+                }
+                chunk += String(character)
+                start = false
+            }
+            else {
+                if character == " " && space {
+                    chunks.append(chunk)
+                    chunk = ""
+                    start = true
+                    continue
+                }
+                else if character == "\\" && tuple {
+                    tuple = false
+                    space = true
+                }
+                else if character == "\"" && string {
+                    string = false
+                    space = true
+                }
+                chunk += String(character)
+            }
+        }
+        if chunk != "" {
+            chunks.append(chunk)
+        }
+        return chunks
     }
     //other supporting functions
     public func setPath(_ path: String) {
