@@ -78,14 +78,49 @@ class Assembler {
         }
         return chunks
     }
+    
+    func getDirective(_ directive: String) -> Token{
+        for d in Directive.allCases {
+            if String(describing: d) == directive {
+                return Token(.Directive, directive: d)
+            }
+        }
+        return Token(.BadToken)
+    }
+    
+    func getTuple(_ tuple: String) -> Token{
+        //cs - int
+        
+        //ic - character covert to unicode value
+        
+        //ns - int
+        
+        //oc - character covert to unicode value
+        
+        //d - r or l
+    }
+    
+    
     func chunkToToken(_ chunk: String) -> Token {
         switch (chunk.first, chunk.last) {
         case (".", _) :
+            //directive
+            getDirective(chunk)
             break
         case ("\\", _) :
+            //tuple
             break
+        case ("\"", "\"") :
+            //string
+            var istring = chunk
+            istring.removeFirst()
+            istring.removeLast()
+            return Token(.ImmediateString, string: istring)
         case ("\"", _) :
-            break
+            //string
+            var istring = chunk
+            istring.removeFirst()
+            return Token(.ImmediateString, string: istring)
         case (_, ":") :
             return getLabelDefinition(chunk)
         case ("#", _) :
