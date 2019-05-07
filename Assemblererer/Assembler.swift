@@ -114,6 +114,7 @@ class Assembler {
         if CharacterSet.letters.contains(label.first!.unicodeScalars.first!) && CharacterSet.alphanumerics.isSuperset(of: CharacterSet(charactersIn: label)) {
             return Token(.Label, string: label)
         }
+        return Token(.BadToken)
     }
 }
 
