@@ -87,7 +87,7 @@ class Assembler {
         case ("\"", _) :
             break
         case (_, ":") :
-            break
+            return getLabelDefinition(chunk)
         case ("#", _) :
             break
         case ("r", _) :
@@ -115,6 +115,13 @@ class Assembler {
             return Token(.Label, string: label)
         }
         return Token(.BadToken)
+    }
+    func getLabelDefinition(_ label: String) -> Token {
+        let token = getLabel(label)
+        if token.type == .Instruction {
+            return Token(.BadToken)
+        }
+        return token
     }
 }
 
