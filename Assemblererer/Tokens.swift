@@ -12,11 +12,11 @@ enum TokenType {
     case Register, LabelDefinition, Label, ImmediateString, ImmediateInteger, ImmediateTuple, Instruction, Directive, BadToken
 }
 struct Token {
-    let type: TokenType
-    let intValue: Int?
-    let stringValue: String?
-    let tupleValue: Tuple?
-    let directive: Directive?
+    public let type: TokenType
+    public let intValue: Int?
+    public let stringValue: String?
+    public let tupleValue: Tuple?
+    public let directive: Directive?
     init (_ type: TokenType, int: Int? = nil, string: String? = nil, tuple: Tuple? = nil, directive: Directive? = nil) {
         self.type = type
         self.intValue = int
