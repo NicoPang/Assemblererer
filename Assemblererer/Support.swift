@@ -26,11 +26,11 @@ public func fit(s: String, size: Int, replacement: Character, right: Bool) -> St
 }
 
 
-public func characterToUnivodeValue(_ c: Character) -> Int{
+public func characterToUnivodeValue(_ c: Character) -> Int {
     return Int(c.unicodeScalars[c.unicodeScalars.startIndex].value)
 }
 
-public func unicodeValueToCharacter(_ n: Int) -> Character{
+public func unicodeValueToCharacter(_ n: Int) -> Character {
     return Character(UnicodeScalar(n)!)
 }
 
@@ -61,6 +61,15 @@ func stringToCommand(_ s: String) -> Command? {
     for command in Command.allCases {
         if String(describing: command) == s {
             return command
+        }
+    }
+    return nil
+}
+
+func stringToDirective(_ s: String) -> Directive? {
+    for directive in Directive.allCases {
+        if String(describing: directive) == s {
+            return directive
         }
     }
     return nil

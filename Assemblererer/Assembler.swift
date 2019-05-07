@@ -79,25 +79,40 @@ class Assembler {
         return chunks
     }
     
-    func getDirective(_ directive: String) -> Token{
-        for d in Directive.allCases {
-            if String(describing: d) == directive {
-                return Token(.Directive, directive: d)
-            }
+    func getDirective(_ directive: String) -> Token {
+        if let directive = stringToDirective(directive) {
+            return Token(.Directive, directive: directive)
         }
         return Token(.BadToken)
     }
     
     func getTuple(_ tuple: String) -> Token{
-        //cs - int
-        
-        //ic - character covert to unicode value
-        
-        //ns - int
-        
-        //oc - character covert to unicode value
-        
-        //d - r or l
+        guard tuple.count > 3 else {
+            return Token(.BadToken)
+        }
+        var tuple = tuple
+        tuple.removeFirst()
+        tuple.removeLast()
+        let values = splitStringIntoParts(tuple)
+        guard values.count == 5 else {
+            return Token(.BadToken)
+        }
+        guard let currentState = Int(values[0]) else {
+            return Token(.BadToken)
+        }
+        guard values[1].count == 1 else {
+            return Token(.BadToken)
+        }
+        guard let newState = Int(values[2]) else {
+            return Token(.BadToken)
+        }
+        guard values[3].count == 1 else {
+            return Token(.BadToken)
+        }
+        guard values[4] == "l" || values[4] == "r" else {
+            return Token(.BadToken)
+        }
+        return Token(.ImmediateTuple, tuple: Tuple(currentState: currentState, inputCharacter: characterToUnivodeValue(Character(values[1])), newState: newState, outputCharacter: characterToUnivodeValue(Character(values[3])), direction: values[4] == "l" ? -1 : 1))
     }
     
     
@@ -106,27 +121,20 @@ class Assembler {
         case (".", _) :
             //directive
             return getDirective(chunk)
-            break
+        case ("\\", "\\") :
+            return getTuple(chunk)
         case ("\\", _) :
-            //tuple
-            break
+            return getTuple(chunk)
         case ("\"", "\"") :
-            //string
-            var istring = chunk
-            istring.removeFirst()
-            istring.removeLast()
-            return Token(.ImmediateString, string: istring)
+            return getString(chunk)
         case ("\"", _) :
-            //string
-            var istring = chunk
-            istring.removeFirst()
-            return Token(.ImmediateString, string: istring)
+            return getString(chunk + "\"")
         case (_, ":") :
             return getLabelDefinition(chunk)
         case ("#", _) :
-            break
+            return getInteger(chunk)
         case ("r", _) :
-            break
+            return getRegister(chunk)
         default :
             return getLabel(chunk)
         }
@@ -157,6 +165,30 @@ class Assembler {
             return Token(.BadToken)
         }
         return token
+    }
+    func getString(_ string: String) -> Token {
+        guard string.count > 3 else {
+            return Token(.BadToken)
+        }
+        var string = string
+        string.removeFirst()
+        string.removeLast()
+        return Token(.ImmediateString, int: string.count, string: string)
+    }
+    func getInteger(_ int: String) -> Token {
+        guard let int = Int(int) else {
+            return Token(.BadToken)
+        }
+        return Token(.ImmediateInteger, int: int)
+    }
+    func getRegister(_ register: String) -> Token {
+        guard register.count == 2 else {
+            return getLabel(register)
+        }
+        guard let registerNumber = Int(String(register.last!)) else {
+            return getLabel(register)
+        }
+        return Token(.Register, int: registerNumber)
     }
 }
 
