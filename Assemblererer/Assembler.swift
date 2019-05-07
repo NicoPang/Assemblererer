@@ -105,7 +105,7 @@ class Assembler {
         switch (chunk.first, chunk.last) {
         case (".", _) :
             //directive
-            getDirective(chunk)
+            return getDirective(chunk)
             break
         case ("\\", _) :
             //tuple
