@@ -15,3 +15,5 @@ struct Tuple {
     let outputCharacter: Int
     let direction: Int
 }
+
+

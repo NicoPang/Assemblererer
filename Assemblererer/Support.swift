@@ -65,3 +65,7 @@ func stringToCommand(_ s: String) -> Command? {
     }
     return nil
 }
+
+enum Directive {
+    case String, Integer, Allocate, Tuple
+}

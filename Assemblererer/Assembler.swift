@@ -78,6 +78,24 @@ class Assembler {
         }
         return chunks
     }
+    func chunkToToken(_ chunk: String) -> Token {
+        switch (chunk.first, chunk.last) {
+        case (".", _) :
+            break
+        case ("\\", _) :
+            break
+        case ("\"", _) :
+            break
+        case (_, ":") :
+            break
+        case ("#", _) :
+            break
+        case ("r", _) :
+            break
+        default :
+            return getLabel(chunk)
+        }
+    }
     //other supporting functions
     public func setPath(_ path: String) {
         self.filePath = path
@@ -88,6 +106,14 @@ class Assembler {
     private func getFileContents() throws -> String {
         let text = try readTextFile(filePath + programName)
         return text
+    }
+    func getLabel(_ label: String) -> Token {
+        if let command = stringToCommand(label) {
+            return Token(.Instruction, int: command.rawValue)
+        }
+        if CharacterSet.letters.contains(label.first!.unicodeScalars.first!) && CharacterSet.alphanumerics.isSuperset(of: CharacterSet(charactersIn: label)) {
+            return Token(.Label, string: label)
+        }
     }
 }
 
