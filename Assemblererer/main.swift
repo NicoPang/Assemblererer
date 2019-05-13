@@ -132,7 +132,13 @@ let tupleProgram = [119, 114, 0,
     53,
     0]
 var asm = Assembler()
-var pvm = FullVM()
+asm.setPath("/Users/nick/Desktop/")
+asm.setProgramName("turing")
+do {
+    try asm.firstPass()
+    
+}
+/*var pvm = FullVM()
 pvm.inputBinaryFromFile(path: "/Users/nick/Desktop/turing.bin")
-pvm.run()
+pvm.run()*/
 

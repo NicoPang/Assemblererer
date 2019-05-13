@@ -101,14 +101,16 @@ class Assembler {
     //returns false for
     func parseLine(_ line: String) -> Bool {
         let tokens = getTokens(line)
-        if tokens[0].type == .LabelDefinition {
-            
+        for token in tokens {
+            print(token.type, terminator: "")
         }
+        print()
         return true
     }
     func firstPass() throws -> Bool {
         let lines = try getLines()
         for line in lines {
+            print(line)
             parseLine(line)
         }
         return true
@@ -121,7 +123,7 @@ class Assembler {
         self.programName = name
     }
     private func getFileContents() throws -> String {
-        let text = try readTextFile(filePath + programName)
+        let text = try readTextFile(filePath + programName + ".txt")
         return text
     }
     func getLabel(_ label: String) -> Token {
@@ -137,11 +139,14 @@ class Assembler {
         return Token(.BadToken)
     }
     func getLabelDefinition(_ label: String) -> Token {
+        var label = label
+        label.removeLast()
         let token = getLabel(label)
         if token.type != .Label {
             return Token(.BadToken)
         }
-        return token
+        let newToken = Token(.LabelDefinition, string: token.stringValue!)
+        return newToken
     }
     func getString(_ string: String) -> Token {
         guard string.count > 3 else {
@@ -153,7 +158,9 @@ class Assembler {
         return Token(.ImmediateString, int: string.count, string: string)
     }
     func getInteger(_ int: String) -> Token {
-        guard let int = Int(int) else {
+        var integer = int
+        integer.removeFirst()
+        guard let int = Int(integer) else {
             return Token(.BadToken)
         }
         return Token(.ImmediateInteger, int: int)
@@ -168,6 +175,8 @@ class Assembler {
         return Token(.Register, int: registerNumber)
     }
     func getDirective(_ directive: String) -> Token {
+        var directive = directive
+        directive.removeFirst()
         if let directive = stringToDirective(directive) {
             return Token(.Directive, directive: directive)
         }
