@@ -125,6 +125,9 @@ class Assembler {
         return text
     }
     func getLabel(_ label: String) -> Token {
+        if let directive = stringToDirective(label) {
+            return Token(.Directive, directive: directive)
+        }
         if let command = stringToCommand(label) {
             return Token(.Instruction, int: command.rawValue)
         }
@@ -198,7 +201,7 @@ class Assembler {
         }
         return Token(.ImmediateTuple, tuple: Tuple(currentState: currentState, inputCharacter: characterToUnivodeValue(Character(values[1])), newState: newState, outputCharacter: characterToUnivodeValue(Character(values[3])), direction: values[4] == "l" ? -1 : 1))
     }
-    func addLabel()
+    //func addLabel()
 }
 
 //pass 1 - makes symbol table and tests for errors
