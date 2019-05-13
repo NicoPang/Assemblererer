@@ -16,20 +16,13 @@ class Assembler {
     private var binaryFile = ""
     private var labelFile = ""
     private var listingFile = ""
-    private var labels: [String : Int?] = [:]
+    private var symbols: [String : Int?] = [:]
     private var start = ""
     //actual assembler code
-    public func assemble() throws -> [String] {
+    public func getLines() throws -> [String] {
         return splitStringIntoLines(try getFileContents()).map{String($0)}
     }
-    public func getChunks(_ lines: [String]) -> [[String]] {
-        var programInChunks: [[String]] = []
-        for line in lines {
-            programInChunks.append(getChunksForLine(line))
-        }
-        return programInChunks
-    }
-    public func getChunksForLine(_ line: String) -> [String] {
+    public func lineToChunks(_ line: String) -> [String] {
         var chunk = ""
         var chunks: [String] = []
         var space = true
@@ -78,44 +71,6 @@ class Assembler {
         }
         return chunks
     }
-    
-    func getDirective(_ directive: String) -> Token {
-        if let directive = stringToDirective(directive) {
-            return Token(.Directive, directive: directive)
-        }
-        return Token(.BadToken)
-    }
-    
-    func getTuple(_ tuple: String) -> Token{
-        guard tuple.count > 3 else {
-            return Token(.BadToken)
-        }
-        var tuple = tuple
-        tuple.removeFirst()
-        tuple.removeLast()
-        let values = splitStringIntoParts(tuple)
-        guard values.count == 5 else {
-            return Token(.BadToken)
-        }
-        guard let currentState = Int(values[0]) else {
-            return Token(.BadToken)
-        }
-        guard values[1].count == 1 else {
-            return Token(.BadToken)
-        }
-        guard let newState = Int(values[2]) else {
-            return Token(.BadToken)
-        }
-        guard values[3].count == 1 else {
-            return Token(.BadToken)
-        }
-        guard values[4] == "l" || values[4] == "r" else {
-            return Token(.BadToken)
-        }
-        return Token(.ImmediateTuple, tuple: Tuple(currentState: currentState, inputCharacter: characterToUnivodeValue(Character(values[1])), newState: newState, outputCharacter: characterToUnivodeValue(Character(values[3])), direction: values[4] == "l" ? -1 : 1))
-    }
-    
-    
     func chunkToToken(_ chunk: String) -> Token {
         switch (chunk.first, chunk.last) {
         case (".", _) :
@@ -139,6 +94,25 @@ class Assembler {
             return getLabel(chunk)
         }
     }
+    func getTokens(_ line: String) -> [Token] {
+        let chunks = lineToChunks(line)
+        return chunks.map{chunkToToken($0)}
+    }
+    //returns false for
+    func parseLine(_ line: String) -> Bool {
+        let tokens = getTokens(line)
+        if tokens[0].type == .LabelDefinition {
+            
+        }
+        return true
+    }
+    func firstPass() throws -> Bool {
+        let lines = try getLines()
+        for line in lines {
+            parseLine(line)
+        }
+        return true
+    }
     //other supporting functions
     public func setPath(_ path: String) {
         self.filePath = path
@@ -161,7 +135,7 @@ class Assembler {
     }
     func getLabelDefinition(_ label: String) -> Token {
         let token = getLabel(label)
-        if token.type == .Instruction {
+        if token.type != .Label {
             return Token(.BadToken)
         }
         return token
@@ -190,6 +164,41 @@ class Assembler {
         }
         return Token(.Register, int: registerNumber)
     }
+    func getDirective(_ directive: String) -> Token {
+        if let directive = stringToDirective(directive) {
+            return Token(.Directive, directive: directive)
+        }
+        return Token(.BadToken)
+    }
+    func getTuple(_ tuple: String) -> Token{
+        guard tuple.count > 3 else {
+            return Token(.BadToken)
+        }
+        var tuple = tuple
+        tuple.removeFirst()
+        tuple.removeLast()
+        let values = splitStringIntoParts(tuple)
+        guard values.count == 5 else {
+            return Token(.BadToken)
+        }
+        guard let currentState = Int(values[0]) else {
+            return Token(.BadToken)
+        }
+        guard values[1].count == 1 else {
+            return Token(.BadToken)
+        }
+        guard let newState = Int(values[2]) else {
+            return Token(.BadToken)
+        }
+        guard values[3].count == 1 else {
+            return Token(.BadToken)
+        }
+        guard values[4] == "l" || values[4] == "r" else {
+            return Token(.BadToken)
+        }
+        return Token(.ImmediateTuple, tuple: Tuple(currentState: currentState, inputCharacter: characterToUnivodeValue(Character(values[1])), newState: newState, outputCharacter: characterToUnivodeValue(Character(values[3])), direction: values[4] == "l" ? -1 : 1))
+    }
+    func addLabel()
 }
 
 //pass 1 - makes symbol table and tests for errors
