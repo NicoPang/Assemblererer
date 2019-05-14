@@ -115,6 +115,21 @@ class Assembler {
         }
         return true
     }
+//    func secondPass(){
+//        let lines = getLines()
+//        for line in lines {
+//            print(line)
+//            parseLineTwice(line)
+//        }
+//        return true
+//    }
+//    func parseLineTwice(_ line: String){
+//        let tokens = getTokens(line)
+//        for token in tokens {
+//
+//        }
+//        print()
+//    }
     //other supporting functions
     public func setPath(_ path: String) {
         self.filePath = path
