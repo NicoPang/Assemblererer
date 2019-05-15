@@ -76,7 +76,17 @@ func stringToDirective(_ s: String) -> Directive? {
 }
 
 enum Directive: CaseIterable {
-    case String, Integer, Allocate, Tuple, Start
+    case String, Integer, Allocate, Tuple, Start, End
 }
-
-let directives: [Directive : String] = [:]
+//m - memory location
+//i - integer
+//s - string
+//t - tuple
+let directives: [Directive : String] = [
+    .Start : "m",
+    .End : "",
+    .String : "s",
+    .Integer : "i",
+    .Allocate : "i",
+    .Tuple : "t"
+]

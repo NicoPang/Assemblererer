@@ -100,20 +100,36 @@ class Assembler {
     }
     //returns false for
     func parseLine(_ line: String) -> Bool {
-        let tokens = getTokens(line)
+        var tokens = getTokens(line)
         for token in tokens {
             print(token.type, terminator: "")
         }
         print()
-        return true
+        if tokens[0].type == .LabelDefinition {
+            symbols[tokens[0].stringValue!] = 1
+            tokens.removeFirst()
+        }
+        if tokens[0].type == .Directive {
+            let vars = directives[tokens[0].directive!]!
+            return checkParameters(vars: vars, tokens: tokens, token: tokens.removeFirst())
+        }
+        else if tokens[0].type == .Instruction {
+            let vars = commands[Command(rawValue: tokens[0].intValue!)!]!
+            return checkParameters(vars: vars, tokens: tokens, token: tokens.removeFirst())
+        }
+        self.listingFile += "----------Expected directive or instruction\n"
+        return false
     }
     func firstPass() throws -> Bool {
         let lines = try getLines()
+        var noErrors = true
         for line in lines {
-            print(line)
-            parseLine(line)
+            self.listingFile += line + "\n"
+            if !parseLine(line) {
+                noErrors = false
+            }
         }
-        return true
+        return noErrors
     }
 //    func secondPass(){
 //        let lines = getLines()
@@ -225,7 +241,47 @@ class Assembler {
         }
         return Token(.ImmediateTuple, tuple: Tuple(currentState: currentState, inputCharacter: characterToUnivodeValue(Character(values[1])), newState: newState, outputCharacter: characterToUnivodeValue(Character(values[3])), direction: values[4] == "l" ? -1 : 1))
     }
-    //func addLabel()
+    //i - integer - not meant to do anything
+    //r - content of register
+    //x - content of memory location in r
+    //m - content of memory location (label or not, doesn't matter for binary)
+    //b - count - needs to go last, all proceeding characters are guaranteed memory locations in some respect and will take count into effect
+    //s - string
+    //t - tuple
+    func checkParameters(vars: String, tokens: [Token], token: Token) -> Bool {
+        var tokens = tokens
+        guard vars.count == tokens.count else {
+            self.listingFile += "----------Illegal parameters for \(token.type) \(token.type == .Directive ? String(describing: token.directive!) : String(describing: Command(rawValue: token.intValue!)!))"
+            return false
+        }
+        for v in vars {
+            let token = tokens.removeFirst()
+            switch (v, token.type) {
+            case ("i", .ImmediateInteger) : break
+            case ("r", .Register) : break
+            case ("x", .Register) : break
+            case ("m", .Label) : addLabel(token.stringValue!, memoryLocation: 1)
+            case ("b", .ImmediateInteger) : break
+            case ("s", .ImmediateString) : break
+            case ("t", .ImmediateTuple) : break
+            default : return false
+            }
+        }
+        return true
+    }
+    func addLabel(_ label: String, memoryLocation: Int? = nil) -> Bool {
+        if symbols[label] == nil && memoryLocation != nil {
+            symbols[label] = memoryLocation!
+        }
+        else if symbols[label] != nil {
+            self.listingFile += "---------Repeated label definition"
+            return false
+        }
+        else {
+            symbols[label] = -1
+        }
+        return true
+    }
 }
 
 //pass 1 - makes symbol table and tests for errors
