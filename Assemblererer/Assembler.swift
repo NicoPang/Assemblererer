@@ -101,21 +101,26 @@ class Assembler {
     //returns false for
     func parseLine(_ line: String) -> Bool {
         var tokens = getTokens(line)
-        for token in tokens {
-            print(token.type, terminator: "")
+        guard tokens.count >= 1 else {
+            return true
         }
-        print()
         if tokens[0].type == .LabelDefinition {
+            if let s = self.symbols[tokens[0].stringValue!] {
+                self.listingFile += "----------Cannot have repeated label definitions\n"
+                return false
+            }
             symbols[tokens[0].stringValue!] = 1
             tokens.removeFirst()
         }
         if tokens[0].type == .Directive {
             let vars = directives[tokens[0].directive!]!
-            return checkParameters(vars: vars, tokens: tokens, token: tokens.removeFirst())
+            let firstToken = tokens.removeFirst()
+            return checkParameters(vars: vars, tokens: tokens, token: firstToken)
         }
         else if tokens[0].type == .Instruction {
             let vars = commands[Command(rawValue: tokens[0].intValue!)!]!
-            return checkParameters(vars: vars, tokens: tokens, token: tokens.removeFirst())
+            let firstToken = tokens.removeFirst()
+            return checkParameters(vars: vars, tokens: tokens, token: firstToken)
         }
         self.listingFile += "----------Expected directive or instruction\n"
         return false
@@ -129,6 +134,7 @@ class Assembler {
                 noErrors = false
             }
         }
+        print(self.listingFile)
         return noErrors
     }
 //    func secondPass(){
@@ -251,16 +257,16 @@ class Assembler {
     func checkParameters(vars: String, tokens: [Token], token: Token) -> Bool {
         var tokens = tokens
         guard vars.count == tokens.count else {
-            self.listingFile += "----------Illegal parameters for \(token.type) \(token.type == .Directive ? String(describing: token.directive!) : String(describing: Command(rawValue: token.intValue!)!))"
+            self.listingFile += "----------Illegal parameters for \(token.type) \(token.type == .Directive ? String(describing: token.directive!) : String(describing: Command(rawValue: token.intValue!)!))\n"
             return false
         }
         for v in vars {
-            let token = tokens.removeFirst()
-            switch (v, token.type) {
+            let tokenz = tokens.removeFirst()
+            switch (v, tokenz.type) {
             case ("i", .ImmediateInteger) : break
             case ("r", .Register) : break
             case ("x", .Register) : break
-            case ("m", .Label) : addLabel(token.stringValue!, memoryLocation: 1)
+            case ("m", .Label) : addLabelFirstPass(tokenz.stringValue!)
             case ("b", .ImmediateInteger) : break
             case ("s", .ImmediateString) : break
             case ("t", .ImmediateTuple) : break
@@ -269,18 +275,10 @@ class Assembler {
         }
         return true
     }
-    func addLabel(_ label: String, memoryLocation: Int? = nil) -> Bool {
-        if symbols[label] == nil && memoryLocation != nil {
-            symbols[label] = memoryLocation!
+    func addLabelFirstPass(_ label: String) {
+        if symbols[label] == nil {
+            symbols[label] = nil
         }
-        else if symbols[label] != nil {
-            self.listingFile += "---------Repeated label definition"
-            return false
-        }
-        else {
-            symbols[label] = -1
-        }
-        return true
     }
 }
 

@@ -135,7 +135,7 @@ var asm = Assembler()
 asm.setPath("/Users/nick/Desktop/")
 asm.setProgramName("turing")
 do {
-    try asm.firstPass()
+    print(try asm.firstPass())
     
 }
 /*var pvm = FullVM()
