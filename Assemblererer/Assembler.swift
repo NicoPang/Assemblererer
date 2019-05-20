@@ -9,15 +9,15 @@
 import Foundation
 
 class Assembler {
-    private var pvm = FullVM()
+    var pvm = FullVM()
     private var filePath = ""
     private var programName = ""
     private var counter = 0
     private var binaryFile = ""
     private var labelFile = ""
     private var listingFile = ""
-    private var symbols: [String : Int?] = [:]
-    private var start = ""
+    var symbols: [String : Int?] = [:]
+    var start = ""
     //actual assembler code
     public func getLines() throws -> [String] {
         return splitStringIntoLines(try getFileContents()).map{String($0)}
@@ -137,21 +137,36 @@ class Assembler {
         print(self.listingFile)
         return noErrors
     }
-//    func secondPass(){
-//        let lines = getLines()
-//        for line in lines {
-//            print(line)
-//            parseLineTwice(line)
-//        }
-//        return true
-//    }
-//    func parseLineTwice(_ line: String){
-//        let tokens = getTokens(line)
-//        for token in tokens {
-//
-//        }
-//        print()
-//    }
+    func secondPass() throws{
+        let lines = try getLines()
+        for line in lines {
+            print(line)
+            parseLineTwice(line)
+        }
+    }
+    func parseLineTwice(_ line: String){
+        var tokens = getTokens(line)
+            if tokens[0].type == .ImmediateString{
+                binaryFile += "\(tokens[0].stringValue!.count - 1)\n"
+                for s in tokens[0].stringValue!{
+                    binaryFile += "\(s)\n"
+                }
+            }
+            if tokens[0].type == .ImmediateInteger{
+                binaryFile += "\(tokens[0].intValue)\n"
+            }
+            if tokens[0].type == .ImmediateTuple{
+                let t = tokens[0].tupleValue!
+                binaryFile += "\(t.currentState)\n"
+                binaryFile += "\(t.inputCharacter)\n"
+                binaryFile += "\(t.newState)\n"
+                binaryFile += "\(t.outputCharacter)\n"
+                binaryFile += "\(t.direction)\n"
+                }
+            if tokens[0].type == .Instruction{
+                binaryFile += "\(tokens[0].intValue!)\n"
+            }
+    }
     //other supporting functions
     public func setPath(_ path: String) {
         self.filePath = path
