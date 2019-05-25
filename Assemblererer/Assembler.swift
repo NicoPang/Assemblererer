@@ -16,7 +16,7 @@ class Assembler {
     private var binaryFile = ""
     private var labelFile = ""
     private var listingFile = ""
-    var symbols: [String : Int?] = [:]
+    var symbolTable: [String : Int?] = [:]
     var start = ""
     var breakPoints: [Int] = []
     var statusFlag: StatusFlag = .G
@@ -107,11 +107,11 @@ class Assembler {
             return true
         }
         if tokens[0].type == .LabelDefinition {
-            if let s = self.symbols[tokens[0].stringValue!] {
+            if let s = self.symbolTable[tokens[0].stringValue!] {
                 self.listingFile += "----------Cannot have repeated label definitions\n"
                 return false
             }
-            symbols[tokens[0].stringValue!] = 1
+            symbolTable[tokens[0].stringValue!] = 1
             tokens.removeFirst()
         }
         if tokens[0].type == .Directive {
@@ -293,8 +293,8 @@ class Assembler {
         return true
     }
     func addLabelFirstPass(_ label: String) {
-        if symbols[label] == nil {
-            symbols[label] = nil
+        if symbolTable[label] == nil {
+            symbolTable[label] = nil
         }
     }
 }

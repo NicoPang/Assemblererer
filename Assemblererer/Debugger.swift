@@ -23,37 +23,75 @@ extension Assembler {
             print("Invalid command")
             return
         }
-        guard let vars = checkSdbParameters(vars: parameters, input: inputChunks) else {
+        guard let vars = checkSdbParameters(parameters: parameters, inputVars: inputChunks) else {
             print("Invalid parameters for command \(command)")
             return
         }
     }
-    func checkSdbParameters(vars: String, inputVars: [String]) -> [Int]? {
-        var vars = vars
-        guard vars.count == inputVars.count else {
-            self.listingFile += "----------Illegal parameters for \(token.type) \(token.type == .Directive ? String(describing: token.directive!) : String(describing: Command(rawValue: token.intValue!)!))\n"
-            return false
+    func checkSdbParameters(parameters: String, inputVars: [String]) -> [Int]? {
+        var parameters = parameters
+        var inputVars = inputVars
+        var outputVars: [Int] = []
+        guard parameters.count == inputVars.count else {
+            return nil
         }
-        for v in vars {
-            let tokenz = tokens.removeFirst()
-            switch (v, tokenz.type) {
-            case ("i", .ImmediateInteger) : break
-            case ("r", .Register) : break
-            case ("x", .Register) : break
-            case ("m", .Label) : addLabelFirstPass(tokenz.stringValue!)
-            case ("b", .ImmediateInteger) : break
-            case ("s", .ImmediateString) : break
-            case ("t", .ImmediateTuple) : break
-            default : return false
+        for p in parameters {
+            let inputVar = inputVars.removeFirst()
+            switch (p) {
+            case "i" :
+                guard let integer = Int(inputVar) else {
+                    return nil
+                }
+                outputVars.append(Int(inputVar)!)
+            case "r" :
+                if !isValidRegister(inputVar) {
+                    return nil
+                }
+                outputVars.append(Int(inputVar)!)
+            case "m" :
+                if !isValidMemoryLocation(inputVar) {
+                    return nil
+                }
+                outputVars.append(Int(inputVar)!)
+            case "a" :
+                if !isValidAddress(inputVar) {
+                    return nil
+                }
+                outputVars.append(parseAddress(inputVar))
+            default : return nil
             }
         }
-        return true
+        return outputVars
+    }
+    func isValidRegister(_ r: String) -> Bool {
+        guard let r = Int(r) else {
+            return false
+        }
+        return self.pvm.validRegister(r)
+    }
+    func isValidMemoryLocation(_ l: String) -> Bool {
+        guard let l = Int(l) else {
+            return false
+        }
+        return self.pvm.validMemoryLocation(l)
+    }
+    func isValidAddress(_ a: String) -> Bool {
+        return isValidMemoryLocation(a) || isValidLabel(a)
+    }
+    func isValidLabel(_ l: String) -> Bool {
+        return self.symbolTable[l] != nil
+    }
+    func parseAddress(_ a: String) -> Int {
+        if let integer = Int(a) {
+            return integer
+        }
+        return self.symbolTable[a]!!
     }
 }
 //a = address
 //r = register
 //i = any integer
-//m = memory location (int)
+//m = memory location as an integer
 let getVarsforSdbCommand = [
     "setbk" : "a",
     "rmbk" : "a",
