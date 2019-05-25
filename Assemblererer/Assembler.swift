@@ -19,6 +19,7 @@ class Assembler {
     var symbols: [String : Int?] = [:]
     var start = ""
     var breakPoints: [Int] = []
+    var statusFlag: StatusFlag = .G
     //actual assembler code
     public func getLines() throws -> [String] {
         return splitStringIntoLines(try getFileContents()).map{String($0)}
@@ -114,14 +115,14 @@ class Assembler {
             tokens.removeFirst()
         }
         if tokens[0].type == .Directive {
-            let vars = directives[tokens[0].directive!]!
+            let vars = getParameterForDirective[tokens[0].directive!]!
             let firstToken = tokens.removeFirst()
-            return checkParameters(vars: vars, tokens: tokens, token: firstToken)
+            return checkAsmParameters(vars: vars, tokens: tokens, token: firstToken)
         }
         else if tokens[0].type == .Instruction {
-            let vars = commands[Command(rawValue: tokens[0].intValue!)!]!
+            let vars = getVariablesforVMCommand[Command(rawValue: tokens[0].intValue!)!]!
             let firstToken = tokens.removeFirst()
-            return checkParameters(vars: vars, tokens: tokens, token: firstToken)
+            return checkAsmParameters(vars: vars, tokens: tokens, token: firstToken)
         }
         self.listingFile += "----------Expected directive or instruction\n"
         return false
@@ -270,19 +271,19 @@ class Assembler {
     //b - count - needs to go last, all proceeding characters are guaranteed memory locations in some respect and will take count into effect
     //s - string
     //t - tuple
-    func checkParameters(vars: String, tokens: [Token], token: Token) -> Bool {
+    func checkAsmParameters(vars: String, tokens: [Token], token: Token) -> Bool {
         var tokens = tokens
         guard vars.count == tokens.count else {
             self.listingFile += "----------Illegal parameters for \(token.type) \(token.type == .Directive ? String(describing: token.directive!) : String(describing: Command(rawValue: token.intValue!)!))\n"
             return false
         }
         for v in vars {
-            let tokenz = tokens.removeFirst()
-            switch (v, tokenz.type) {
+            let associatedTokenType = tokens.removeFirst()
+            switch (v, associatedTokenType.type) {
             case ("i", .ImmediateInteger) : break
             case ("r", .Register) : break
             case ("x", .Register) : break
-            case ("m", .Label) : addLabelFirstPass(tokenz.stringValue!)
+            case ("m", .Label) : addLabelFirstPass(associatedTokenType.stringValue!)
             case ("b", .ImmediateInteger) : break
             case ("s", .ImmediateString) : break
             case ("t", .ImmediateTuple) : break

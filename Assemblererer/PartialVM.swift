@@ -519,7 +519,7 @@ class FullVM {
         
         let commandID = self.memory[self.rPC]
         let command = Command(rawValue: commandID)!
-        let parameters = commands[command]!
+        let parameters = getVariablesforVMCommand[command]!
         
         guard validMemoryLocation(self.rPC + parameters.count) else {
             print("Invalid memory location \(self.memorySize). Program terminated.")
@@ -624,6 +624,10 @@ class FullVM {
             return 2
         }
         return 0
+    }
+    //returns the raw value of the current command
+    func getCommand() -> Int {
+        return self.memory[self.rPC]
     }
 }
 

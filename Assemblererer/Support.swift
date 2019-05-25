@@ -82,7 +82,7 @@ enum Directive: CaseIterable {
 //i - integer
 //s - string
 //t - tuple
-let directives: [Directive : String] = [
+let getParameterForDirective: [Directive : String] = [
     .Start : "m",
     .End : "",
     .String : "s",

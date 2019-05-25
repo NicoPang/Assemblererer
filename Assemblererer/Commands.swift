@@ -21,7 +21,7 @@ enum Command: Int, CaseIterable {
 //m - content of memory location (label or not, doesn't matter for binary)
 //b - count - needs to go last, all proceeding characters are guaranteed memory locations in some respect and will take count into effect
 
-let commands: [Command : String] = [
+let getVariablesforVMCommand: [Command : String] = [
     .halt : "",
     .clrr : "r",
     .clrx : "x",
