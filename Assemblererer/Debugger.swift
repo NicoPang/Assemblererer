@@ -14,7 +14,6 @@ enum StatusFlag {
  
 
 extension Assembler {
-    
     func debug() {
         print("Sdb (\(self.pvm.rPC))")
     }

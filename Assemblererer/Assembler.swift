@@ -18,6 +18,7 @@ class Assembler {
     private var listingFile = ""
     var symbols: [String : Int?] = [:]
     var start = ""
+    var breakPoints: [Int] = []
     //actual assembler code
     public func getLines() throws -> [String] {
         return splitStringIntoLines(try getFileContents()).map{String($0)}
