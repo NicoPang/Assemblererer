@@ -41,17 +41,17 @@ extension Assembler {
         case "pbk" :
             printBreakPoints()
         case "preg" :
-            break
+            printRegisters()
         case "wreg" :
-            break
+            writeToRegister(vars[0], value: vars[1])
         case "wpc" :
-            break
+            writeTorPC(value: vars[0])
         case "pmem" :
             break
         case "deas" :
             break
         case "wmem" :
-            break
+            writeToMemory(location: vars[0], value: vars[1])
         case "pst" :
             printLabelFile()
         case "g" :
@@ -143,6 +143,22 @@ extension Assembler {
         print("    s                                    do a single step")
         print("    exit                                 terminate virtual machine")
         print("    help                                 print this help table (again)")
+        print("\n")
+        print("----<address> refers to either a label or a memory location")
+    }
+    func writeToMemory(location: Int, value: Int) {
+        self.pvm.changeMemoryValue(at: location, to: value)
+    }
+    func writeTorPC(value: Int) {
+        self.pvm.setrPC(to: value)
+    }
+    func printRegisters() {
+        for register in 0...9 {
+            print("    r\(register): \(self.pvm.getRegisterValue(at: register))")
+        }
+    }
+    func writeToRegister(_ register: Int, value: Int) {
+        self.pvm.setRegister(register, to: value)
     }
 }
 //a = address

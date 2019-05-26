@@ -633,5 +633,17 @@ class FullVM {
     func getrPC() -> Int {
         return self.rPC
     }
+    func changeMemoryValue(at location: Int, to value: Int) {
+        self.memory[location] = value
+    }
+    func setrPC(to value: Int) {
+        self.rPC = value
+    }
+    func getRegisterValue(at register: Int) -> Int {
+        return self.registers[register]
+    }
+    func setRegister(_ register: Int, to value: Int) {
+        self.registers[register] = value
+    }
 }
 
