@@ -29,7 +29,7 @@ extension Assembler {
         }
     }
     func checkSdbParameters(parameters: String, inputVars: [String]) -> [Int]? {
-        var parameters = parameters
+        let parameters = parameters
         var inputVars = inputVars
         var outputVars: [Int] = []
         guard parameters.count == inputVars.count else {
@@ -42,7 +42,7 @@ extension Assembler {
                 guard let integer = Int(inputVar) else {
                     return nil
                 }
-                outputVars.append(Int(inputVar)!)
+                outputVars.append(integer)
             case "r" :
                 if !isValidRegister(inputVar) {
                     return nil

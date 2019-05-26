@@ -107,7 +107,7 @@ class Assembler {
             return true
         }
         if tokens[0].type == .LabelDefinition {
-            if let s = self.symbolTable[tokens[0].stringValue!] {
+            if self.symbolTable[tokens[0].stringValue!] != nil {
                 self.listingFile += "----------Cannot have repeated label definitions\n"
                 return false
             }
@@ -150,12 +150,12 @@ class Assembler {
         var tokens = getTokens(line)
             if tokens[0].type == .ImmediateString{
                 binaryFile += "\(tokens[0].stringValue!.count - 1)\n"
-                for s in tokens[0].stringValue!{
-                    binaryFile += "\(s)\n"
+                for s in tokens[0].stringValue! {
+                    binaryFile += "\(characterToUnivodeValue(s))\n"
                 }
             }
             if tokens[0].type == .ImmediateInteger{
-                binaryFile += "\(tokens[0].intValue)\n"
+                binaryFile += "\(tokens[0].intValue!)\n"
             }
             if tokens[0].type == .ImmediateTuple{
                 let t = tokens[0].tupleValue!
