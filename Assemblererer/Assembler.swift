@@ -20,6 +20,7 @@ class Assembler {
     var start = ""
     private var breakPoints: Set<Int> = []
     private var statusFlag: StatusFlag = .G
+    var breakPointsEnabled = true
     //actual assembler code
     public func getLines() throws -> [String] {
         return splitStringIntoLines(try getFileContents()).map{String($0)}

@@ -35,9 +35,9 @@ extension Assembler {
         case "clrbk" :
             clearBreakPoints()
         case "disbk" :
-            break
+            self.breakPointsEnabled = false
         case "enbk" :
-            break
+            self.breakPointsEnabled = true
         case "pbk" :
             printBreakPoints()
         case "preg" :
@@ -47,7 +47,7 @@ extension Assembler {
         case "wpc" :
             writeTorPC(value: vars[0])
         case "pmem" :
-            break
+            printMemoryRange(start: vars[0], end: vars[1])
         case "deas" :
             break
         case "wmem" :
@@ -159,6 +159,13 @@ extension Assembler {
     }
     func writeToRegister(_ register: Int, value: Int) {
         self.pvm.setRegister(register, to: value)
+    }
+    func printMemoryRange(start: Int, end: Int) {
+        guard start <= end else {
+            print("Invalid range")
+            return
+        }
+        self.pvm.printMemoryRangeFrom(start, to: end)
     }
 }
 //a = address

@@ -645,5 +645,10 @@ class FullVM {
     func setRegister(_ register: Int, to value: Int) {
         self.registers[register] = value
     }
+    func printMemoryRangeFrom(_ start: Int, to end: Int) {
+        for location in start...end {
+            print("    \(self.memory[location])")
+        }
+    }
 }
 
