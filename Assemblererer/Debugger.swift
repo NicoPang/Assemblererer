@@ -27,6 +27,44 @@ extension Assembler {
             print("Invalid parameters for command \(command)")
             return
         }
+        switch command {
+        case "setbk" :
+            break
+        case "rmbk" :
+            break
+        case "clrbk" :
+            break
+        case "disbk" :
+            break
+        case "enbk" :
+            break
+        case "pbk" :
+            break
+        case "preg" :
+            break
+        case "wreg" :
+            break
+        case "wpc" :
+            break
+        case "pmem" :
+            break
+        case "deas" :
+            break
+        case "wmem" :
+            break
+        case "pst" :
+            self.printLabelFile()
+        case "g" :
+            self.statusFlag = .G
+        case "s" :
+            self.statusFlag = .S
+        case "exit" :
+            self.statusFlag = .Exit
+        case "help" :
+            break
+        //never going to be executed
+        default : return
+        }
     }
     func checkSdbParameters(parameters: String, inputVars: [String]) -> [Int]? {
         let parameters = parameters

@@ -27,12 +27,12 @@ class Assembler {
     public func lineToChunks(_ line: String) -> [String] {
         var chunk = ""
         var chunks: [String] = []
-        var space = true
-        var string = false
-        var tuple = false
-        var start = true
+        var normalChunk = true
+        var stringChunk = false
+        var tupleChunk = false
+        var startOfChunk = true
         for character in line {
-            if start {
+            if startOfChunk {
                 if character == ";" {
                     return chunks
                 }
@@ -40,30 +40,30 @@ class Assembler {
                     continue
                 }
                 else if character == "\\" {
-                    tuple = true
-                    space = false
+                    tupleChunk = true
+                    normalChunk = false
                 }
                 else if character == "\"" {
-                    string = true
-                    space = false
+                    stringChunk = true
+                    normalChunk = false
                 }
                 chunk += String(character)
-                start = false
+                startOfChunk = false
             }
             else {
-                if character == " " && space {
+                if character == " " && normalChunk {
                     chunks.append(chunk)
                     chunk = ""
-                    start = true
+                    startOfChunk = true
                     continue
                 }
-                else if character == "\\" && tuple {
-                    tuple = false
-                    space = true
+                else if character == "\\" && tupleChunk {
+                    tupleChunk = false
+                    normalChunk = true
                 }
-                else if character == "\"" && string {
-                    string = false
-                    space = true
+                else if character == "\"" && stringChunk {
+                    stringChunk = false
+                    normalChunk = true
                 }
                 chunk += String(character)
             }
@@ -296,6 +296,9 @@ class Assembler {
         if symbolTable[label] == nil {
             symbolTable[label] = nil
         }
+    }
+    func printLabelFile() {
+        print(self.labelFile)
     }
 }
 

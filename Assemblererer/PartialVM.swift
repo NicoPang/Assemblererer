@@ -21,9 +21,9 @@ class FullVM {
     var running = false
     var rPC = 0
     var rCP = 0
-    var memorySize = 0
-    var start = 0
-    var stack = Stack<Int>(size: 10000, initial: 0)
+    private var memorySize = 0
+    private var start = 0
+    private var stack = Stack<Int>(size: 10000, initial: 0)
     /////////////actual vm code
     func inputBinary(_ binary: [Int]) {
         guard binary.count > 3 else {
