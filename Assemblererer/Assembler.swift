@@ -18,8 +18,8 @@ class Assembler {
     private var listingFile = ""
     var symbolTable: [String : Int?] = [:]
     var start = ""
-    var breakPoints: [Int] = []
-    var statusFlag: StatusFlag = .G
+    private var breakPoints: Set<Int> = []
+    private var statusFlag: StatusFlag = .G
     //actual assembler code
     public func getLines() throws -> [String] {
         return splitStringIntoLines(try getFileContents()).map{String($0)}
@@ -299,6 +299,37 @@ class Assembler {
     }
     func printLabelFile() {
         print(self.labelFile)
+    }
+    func setStatusFlag(to flag: StatusFlag) {
+        self.statusFlag = flag
+    }
+    func setBreakPoint(at address: Int) {
+        self.breakPoints.insert(address)
+    }
+    func removeBreakPoint(at address: Int) {
+        self.breakPoints.remove(address)
+    }
+    func clearBreakPoints() {
+        self.breakPoints = []
+    }
+    func findLabelAtMemoryLocation(_ location: Int) -> String? {
+        for (label, address) in self.symbolTable {
+            if address! == location {
+                return label
+            }
+        }
+        return nil
+    }
+    func printBreakPoints() {
+        for breakPoint in self.breakPoints {
+            print(breakPoint, terminator: "")
+            if let label = findLabelAtMemoryLocation(breakPoint) {
+                print("(\(label))")
+            }
+            else {
+                print("\n")
+            }
+        }
     }
 }
 

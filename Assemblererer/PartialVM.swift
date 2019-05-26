@@ -16,11 +16,11 @@
 import Foundation
  
 class FullVM {
-    var registers: [Int] = Array<Int>(repeatElement(0, count: 10))
-    var memory: [Int] = []
-    var running = false
-    var rPC = 0
-    var rCP = 0
+    private var registers: [Int] = Array<Int>(repeatElement(0, count: 10))
+    private var memory: [Int] = []
+    private var running = false
+    private var rPC = 0
+    private var rCP = 0
     private var memorySize = 0
     private var start = 0
     private var stack = Stack<Int>(size: 10000, initial: 0)
@@ -628,6 +628,10 @@ class FullVM {
     //returns the raw value of the current command
     func getCommand() -> Int {
         return self.memory[self.rPC]
+    }
+    //private access commands
+    func getrPC() -> Int {
+        return self.rPC
     }
 }
 

@@ -15,7 +15,7 @@ enum StatusFlag {
 
 extension Assembler {
     func debug() {
-        print("Sdb (\(self.pvm.rPC))> ", terminator: "")
+        print("Sdb (\(self.pvm.getrPC()))> ", terminator: "")
         let input = readLine()!
         var inputChunks = splitStringIntoParts(input)
         let command = inputChunks.removeFirst()
@@ -29,17 +29,17 @@ extension Assembler {
         }
         switch command {
         case "setbk" :
-            break
+            setBreakPoint(at: vars[0])
         case "rmbk" :
-            break
+            removeBreakPoint(at: vars[0])
         case "clrbk" :
-            break
+            clearBreakPoints()
         case "disbk" :
             break
         case "enbk" :
             break
         case "pbk" :
-            break
+            printBreakPoints()
         case "preg" :
             break
         case "wreg" :
@@ -53,15 +53,15 @@ extension Assembler {
         case "wmem" :
             break
         case "pst" :
-            self.printLabelFile()
+            printLabelFile()
         case "g" :
-            self.statusFlag = .G
+            setStatusFlag(to: .G)
         case "s" :
-            self.statusFlag = .S
+            setStatusFlag(to: .S)
         case "exit" :
-            self.statusFlag = .Exit
+            setStatusFlag(to: .Exit)
         case "help" :
-            break
+            printSdbCommands()
         //never going to be executed
         default : return
         }
@@ -124,6 +124,25 @@ extension Assembler {
             return integer
         }
         return self.symbolTable[a]!!
+    }
+    func printSdbCommands() {
+        print("    setbk <address>                      set breakpoint at <address>")
+        print("    rmbk <address>                       remove breakpoint at <address>")
+        print("    clrbk                                clear all breakpoints")
+        print("    disbk                                disable breakpoints")
+        print("    enbk                                 enable breakpoints")
+        print("    pbk                                  print the breakpoints")
+        print("    preg                                 print the registers")
+        print("    wreg <register> <value>              write value <value> to register <register>")
+        print("    wpc <value>                          write value <value> to the rPC")
+        print("    pmem <start address> <end address>   print memory locations from <start address> to <end address>>")
+        print("    deas <start address> <end address>   deassemble memory locations from <start address> to <end address>")
+        print("    wmem <address> <value>               write value <value> at address <address>")
+        print("    pst                                  print the symbol table")
+        print("    g                                    continue program execution")
+        print("    s                                    do a single step")
+        print("    exit                                 terminate virtual machine")
+        print("    help                                 print this help table (again)")
     }
 }
 //a = address
