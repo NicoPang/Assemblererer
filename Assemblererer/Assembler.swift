@@ -139,33 +139,58 @@ class Assembler {
     }
     func secondPass() throws{
         let lines = try getLines()
+        var labelPlace = 0
         for line in lines {
             print(line)
-            parseLineTwice(line)
+            labelPlace += parseLineTwice(line, labelPlace)
         }
     }
-    func parseLineTwice(_ line: String){
+    func parseLineTwice(_ line: String, _ labelPlace: Int) -> Int{
         var tokens = getTokens(line)
-            if tokens[0].type == .ImmediateString{
+        var count = 0
+        for t in tokens{
+            if t.type == .LabelDefinition{
+                labelFile += "\(tokens[0].stringValue!) \(labelPlace)\n"
+                listingFile += "\(labelPlace): "
+            }
+            if t.type == .ImmediateString{
                 binaryFile += "\(tokens[0].stringValue!.count - 1)\n"
-                for s in tokens[0].stringValue!{
-                    binaryFile += "\(s)\n"
+                listingFile += "\(tokens[0].stringValue!.count - 1) "
+                for s in (1...tokens[0].stringValue!.count){
+                    binaryFile += "\(stringToUnicodeValues(String(s)))\n"
+                    count += 1
+                    if s <= 3 {
+                        listingFile += "\(stringToUnicodeValues(String(s))) "
+                    }
                 }
+                listingFile += "\(line)\n"
             }
-            if tokens[0].type == .ImmediateInteger{
+            if t.type == .ImmediateInteger{
                 binaryFile += "\(tokens[0].intValue)\n"
+                listingFile += "\(tokens[0].intValue) \(line)"
+                count += 1
             }
-            if tokens[0].type == .ImmediateTuple{
+            if t.type == .ImmediateTuple{
                 let t = tokens[0].tupleValue!
                 binaryFile += "\(t.currentState)\n"
                 binaryFile += "\(t.inputCharacter)\n"
                 binaryFile += "\(t.newState)\n"
                 binaryFile += "\(t.outputCharacter)\n"
                 binaryFile += "\(t.direction)\n"
-                }
-            if tokens[0].type == .Instruction{
-                binaryFile += "\(tokens[0].intValue!)\n"
+                count += 5
+                //add tuple into listing file
             }
+            if t.type == .Instruction{
+                binaryFile += "\(tokens[0].intValue!)\n"
+                //listingFile += "\(tokens[0].intValue!) "
+                count += 1
+            }
+            if t.type == .Label{
+                //find old place of label
+            }
+            //how to deal with register
+        }
+        return count
     }
     //other supporting functions
     public func setPath(_ path: String) {
