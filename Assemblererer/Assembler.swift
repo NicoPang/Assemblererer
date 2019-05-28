@@ -147,9 +147,9 @@ class Assembler {
             if labelLocation == nil {
                 self.listingFile += "----------Label \(label) not defined\n"
                 self.errors += 1
+                noErrors = false
             }
-            noErrors = false
-        } 
+        }
         self.binaryCount = rPC + 1
         noErrors = hasAStart ? noErrors : false
         do {
@@ -168,7 +168,7 @@ class Assembler {
         for line in lines {
             parseLineTwice(line, &rPC)
         }
-        self.listingFile += "\n\n\(self.labelFile)"
+        self.listingFile += "\nSymbol Table:\n\(self.labelFile)"
         do {
             try writeTextFile(self.filePath + self.programName + ".lst", data: self.listingFile)
             try writeTextFile(self.filePath + self.programName + ".bin", data: self.binaryFile)
@@ -183,7 +183,7 @@ class Assembler {
         do {
             print("Assembling file \(self.filePath)\(self.programName).txt")
             let lines = try getLines()
-            if firstPass(lines: lines) {
+            if !firstPass(lines: lines) {
                 print("Assembly found \(self.errors) errors")
                 print("No binary file written")
                 print("See .lst file for errors")
@@ -314,9 +314,6 @@ class Assembler {
         return text
     }
     func getLabel(_ label: String) -> Token {
-        if let directive = stringToDirective(label) {
-            return Token(.Directive, directive: directive)
-        }
         if let command = stringToCommand(label) {
             return Token(.Instruction, int: command.rawValue)
         }
@@ -420,7 +417,8 @@ class Assembler {
             case ("b", .ImmediateInteger) : break
             case ("s", .ImmediateString) : break
             case ("t", .ImmediateTuple) : break
-            default : return false
+            default :
+                return false
             }
         }
         return true
