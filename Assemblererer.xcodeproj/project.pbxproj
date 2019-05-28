@@ -76,10 +76,7 @@
 			isa = PBXGroup;
 			children = (
 				01E72E82224BDB4900F2D704 /* main.swift */,
-				01E72E89224BDBC600F2D704 /* PartialVM.swift */,
-				01339DD9225FC44A00347D7F /* Assembler.swift */,
 				01007191226DDF00007ADE9F /* SAPUI.swift */,
-				01E72E8B224BDC7A00F2D704 /* Support.swift */,
 				01C6387B22931A89004AD35D /* Debugger.swift */,
 				01E72E8D224BDC9800F2D704 /* Commands.swift */,
 				01007193226E4E81007ADE9F /* Tokens.swift */,

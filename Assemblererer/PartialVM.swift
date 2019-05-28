@@ -16,14 +16,14 @@
 import Foundation
  
 class FullVM {
-    var registers: [Int] = Array<Int>(repeatElement(0, count: 10))
-    var memory: [Int] = []
-    var running = false
-    var rPC = 0
-    var rCP = 0
-    var memorySize = 0
-    var start = 0
-    var stack = Stack<Int>(size: 10000, initial: 0)
+    private var registers: [Int] = Array<Int>(repeatElement(0, count: 10))
+    private var memory: [Int] = []
+    private var running = false
+    private var rPC = 0
+    private var rCP = 0
+    private var memorySize = 0
+    private var start = 0
+    private var stack = Stack<Int>(size: 10000, initial: 0)
     /////////////actual vm code
     func inputBinary(_ binary: [Int]) {
         guard binary.count > 3 else {
@@ -519,7 +519,7 @@ class FullVM {
         
         let commandID = self.memory[self.rPC]
         let command = Command(rawValue: commandID)!
-        let parameters = commands[command]!
+        let parameters = getVariablesforVMCommand[command]!
         
         guard validMemoryLocation(self.rPC + parameters.count) else {
             print("Invalid memory location \(self.memorySize). Program terminated.")
@@ -624,6 +624,31 @@ class FullVM {
             return 2
         }
         return 0
+    }
+    //returns the raw value of the current command
+    func getCommand() -> Int {
+        return self.memory[self.rPC]
+    }
+    //private access commands
+    func getrPC() -> Int {
+        return self.rPC
+    }
+    func changeMemoryValue(at location: Int, to value: Int) {
+        self.memory[location] = value
+    }
+    func setrPC(to value: Int) {
+        self.rPC = value
+    }
+    func getRegisterValue(at register: Int) -> Int {
+        return self.registers[register]
+    }
+    func setRegister(_ register: Int, to value: Int) {
+        self.registers[register] = value
+    }
+    func printMemoryRangeFrom(_ start: Int, to end: Int) {
+        for location in start...end {
+            print("    \(self.memory[location])")
+        }
     }
 }
 

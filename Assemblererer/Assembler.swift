@@ -16,7 +16,6 @@ class Assembler {
     private var binaryFile = ""
     private var labelFile = ""
     private var listingFile = ""
-    var symbols: [String : Int?] = [:]
     var start = ""
     //actual assembler code
     public func getLines() throws -> [String] {
@@ -25,10 +24,6 @@ class Assembler {
     public func lineToChunks(_ line: String) -> [String] {
         var chunk = ""
         var chunks: [String] = []
-        var space = true
-        var string = false
-        var tuple = false
-        var start = true
         for character in line {
             if start {
                 if character == ";" {
@@ -42,26 +37,17 @@ class Assembler {
                     space = false
                 }
                 else if character == "\"" {
-                    string = true
-                    space = false
                 }
                 chunk += String(character)
                 start = false
             }
             else {
-                if character == " " && space {
                     chunks.append(chunk)
                     chunk = ""
                     start = true
                     continue
                 }
-                else if character == "\\" && tuple {
-                    tuple = false
-                    space = true
                 }
-                else if character == "\"" && string {
-                    string = false
-                    space = true
                 }
                 chunk += String(character)
             }
@@ -105,22 +91,16 @@ class Assembler {
             return true
         }
         if tokens[0].type == .LabelDefinition {
-            if let s = self.symbols[tokens[0].stringValue!] {
                 self.listingFile += "----------Cannot have repeated label definitions\n"
                 return false
             }
-            symbols[tokens[0].stringValue!] = 1
             tokens.removeFirst()
         }
         if tokens[0].type == .Directive {
-            let vars = directives[tokens[0].directive!]!
             let firstToken = tokens.removeFirst()
-            return checkParameters(vars: vars, tokens: tokens, token: firstToken)
         }
         else if tokens[0].type == .Instruction {
-            let vars = commands[Command(rawValue: tokens[0].intValue!)!]!
             let firstToken = tokens.removeFirst()
-            return checkParameters(vars: vars, tokens: tokens, token: firstToken)
         }
         self.listingFile += "----------Expected directive or instruction\n"
         return false
@@ -155,6 +135,7 @@ class Assembler {
             }
             if t.type == .ImmediateString{
                 binaryFile += "\(tokens[0].stringValue!.count - 1)\n"
+<<<<<<< HEAD
                 listingFile += "\(tokens[0].stringValue!.count - 1) "
                 for s in (1...tokens[0].stringValue!.count){
                     binaryFile += "\(stringToUnicodeValues(String(s)))\n"
@@ -294,19 +275,15 @@ class Assembler {
     //b - count - needs to go last, all proceeding characters are guaranteed memory locations in some respect and will take count into effect
     //s - string
     //t - tuple
-    func checkParameters(vars: String, tokens: [Token], token: Token) -> Bool {
         var tokens = tokens
         guard vars.count == tokens.count else {
             self.listingFile += "----------Illegal parameters for \(token.type) \(token.type == .Directive ? String(describing: token.directive!) : String(describing: Command(rawValue: token.intValue!)!))\n"
             return false
         }
         for v in vars {
-            let tokenz = tokens.removeFirst()
-            switch (v, tokenz.type) {
             case ("i", .ImmediateInteger) : break
             case ("r", .Register) : break
             case ("x", .Register) : break
-            case ("m", .Label) : addLabelFirstPass(tokenz.stringValue!)
             case ("b", .ImmediateInteger) : break
             case ("s", .ImmediateString) : break
             case ("t", .ImmediateTuple) : break
@@ -316,8 +293,40 @@ class Assembler {
         return true
     }
     func addLabelFirstPass(_ label: String) {
-        if symbols[label] == nil {
-            symbols[label] = nil
+        }
+    }
+    func printLabelFile() {
+        print(self.labelFile)
+    }
+    func setStatusFlag(to flag: StatusFlag) {
+        self.statusFlag = flag
+    }
+    func setBreakPoint(at address: Int) {
+        self.breakPoints.insert(address)
+    }
+    func removeBreakPoint(at address: Int) {
+        self.breakPoints.remove(address)
+    }
+    func clearBreakPoints() {
+        self.breakPoints = []
+    }
+    func findLabelAtMemoryLocation(_ location: Int) -> String? {
+        for (label, address) in self.symbolTable {
+            if address! == location {
+                return label
+            }
+        }
+        return nil
+    }
+    func printBreakPoints() {
+        for breakPoint in self.breakPoints {
+            print(breakPoint, terminator: "")
+            if let label = findLabelAtMemoryLocation(breakPoint) {
+                print("(\(label))")
+            }
+            else {
+                print("\n")
+            }
         }
     }
 }
