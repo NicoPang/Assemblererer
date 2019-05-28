@@ -158,7 +158,6 @@ class Assembler {
             }
             if t.type == .ImmediateString{
                 binaryFile += "\(tokens[0].stringValue!.count - 1)\n"
-<<<<<<< HEAD
                 listingFile += "\(tokens[0].stringValue!.count - 1) "
                 for s in (1...tokens[0].stringValue!.count){
                     binaryFile += "\(stringToUnicodeValues(String(s)))\n"
@@ -166,22 +165,20 @@ class Assembler {
                     if s <= 3 {
                         listingFile += "\(stringToUnicodeValues(String(s))) "
                     }
-=======
+                }
                 for s in tokens[0].stringValue! {
                     binaryFile += "\(characterToUnivodeValue(s))\n"
->>>>>>> master
                 }
                 listingFile += "\(line)\n"
             }
-<<<<<<< HEAD
             if t.type == .ImmediateInteger{
                 binaryFile += "\(tokens[0].intValue)\n"
                 listingFile += "\(tokens[0].intValue) \(line)"
                 count += 1
-=======
-            if tokens[0].type == .ImmediateInteger{
+                
+            }
+            if t.type == .ImmediateInteger{
                 binaryFile += "\(tokens[0].intValue!)\n"
->>>>>>> master
             }
             if t.type == .ImmediateTuple{
                 let t = tokens[0].tupleValue!
