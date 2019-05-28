@@ -25,7 +25,6 @@ class Assembler {
         var chunk = ""
         var chunks: [String] = []
         for character in line {
-            if start {
                 if character == ";" {
                     return chunks
                 }
@@ -33,18 +32,14 @@ class Assembler {
                     continue
                 }
                 else if character == "\\" {
-                    tuple = true
-                    space = false
                 }
                 else if character == "\"" {
                 }
                 chunk += String(character)
-                start = false
             }
             else {
                     chunks.append(chunk)
                     chunk = ""
-                    start = true
                     continue
                 }
                 }
