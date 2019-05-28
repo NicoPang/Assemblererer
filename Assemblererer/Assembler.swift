@@ -16,7 +16,11 @@ class Assembler {
     private var binaryFile = ""
     private var labelFile = ""
     private var listingFile = ""
+    var symbolTable: [String : Int?] = [:]
     var start = ""
+    private var breakPoints: Set<Int> = []
+    private var statusFlag: StatusFlag = .G
+    var breakPointsEnabled = true
     //actual assembler code
     public func getLines() throws -> [String] {
         return splitStringIntoLines(try getFileContents()).map{String($0)}
@@ -24,7 +28,12 @@ class Assembler {
     public func lineToChunks(_ line: String) -> [String] {
         var chunk = ""
         var chunks: [String] = []
+        var normalChunk = true
+        var stringChunk = false
+        var tupleChunk = false
+        var startOfChunk = true
         for character in line {
+            if startOfChunk {
                 if character == ";" {
                     return chunks
                 }
@@ -32,17 +41,30 @@ class Assembler {
                     continue
                 }
                 else if character == "\\" {
+                    tupleChunk = true
+                    normalChunk = false
                 }
                 else if character == "\"" {
+                    stringChunk = true
+                    normalChunk = false
                 }
                 chunk += String(character)
+                startOfChunk = false
             }
             else {
+                if character == " " && normalChunk {
                     chunks.append(chunk)
                     chunk = ""
+                    startOfChunk = true
                     continue
                 }
+                else if character == "\\" && tupleChunk {
+                    tupleChunk = false
+                    normalChunk = true
                 }
+                else if character == "\"" && stringChunk {
+                    stringChunk = false
+                    normalChunk = true
                 }
                 chunk += String(character)
             }
@@ -86,16 +108,22 @@ class Assembler {
             return true
         }
         if tokens[0].type == .LabelDefinition {
+            if self.symbolTable[tokens[0].stringValue!] != nil {
                 self.listingFile += "----------Cannot have repeated label definitions\n"
                 return false
             }
+            symbolTable[tokens[0].stringValue!] = 1
             tokens.removeFirst()
         }
         if tokens[0].type == .Directive {
+            let vars = getParameterForDirective[tokens[0].directive!]!
             let firstToken = tokens.removeFirst()
+            return checkAsmParameters(vars: vars, tokens: tokens, token: firstToken)
         }
         else if tokens[0].type == .Instruction {
+            let vars = getVariablesforVMCommand[Command(rawValue: tokens[0].intValue!)!]!
             let firstToken = tokens.removeFirst()
+            return checkAsmParameters(vars: vars, tokens: tokens, token: firstToken)
         }
         self.listingFile += "----------Expected directive or instruction\n"
         return false
@@ -138,13 +166,22 @@ class Assembler {
                     if s <= 3 {
                         listingFile += "\(stringToUnicodeValues(String(s))) "
                     }
+=======
+                for s in tokens[0].stringValue! {
+                    binaryFile += "\(characterToUnivodeValue(s))\n"
+>>>>>>> master
                 }
                 listingFile += "\(line)\n"
             }
+<<<<<<< HEAD
             if t.type == .ImmediateInteger{
                 binaryFile += "\(tokens[0].intValue)\n"
                 listingFile += "\(tokens[0].intValue) \(line)"
                 count += 1
+=======
+            if tokens[0].type == .ImmediateInteger{
+                binaryFile += "\(tokens[0].intValue!)\n"
+>>>>>>> master
             }
             if t.type == .ImmediateTuple{
                 let t = tokens[0].tupleValue!
@@ -270,15 +307,19 @@ class Assembler {
     //b - count - needs to go last, all proceeding characters are guaranteed memory locations in some respect and will take count into effect
     //s - string
     //t - tuple
+    func checkAsmParameters(vars: String, tokens: [Token], token: Token) -> Bool {
         var tokens = tokens
         guard vars.count == tokens.count else {
             self.listingFile += "----------Illegal parameters for \(token.type) \(token.type == .Directive ? String(describing: token.directive!) : String(describing: Command(rawValue: token.intValue!)!))\n"
             return false
         }
         for v in vars {
+            let associatedTokenType = tokens.removeFirst()
+            switch (v, associatedTokenType.type) {
             case ("i", .ImmediateInteger) : break
             case ("r", .Register) : break
             case ("x", .Register) : break
+            case ("m", .Label) : addLabelFirstPass(associatedTokenType.stringValue!)
             case ("b", .ImmediateInteger) : break
             case ("s", .ImmediateString) : break
             case ("t", .ImmediateTuple) : break
@@ -288,6 +329,8 @@ class Assembler {
         return true
     }
     func addLabelFirstPass(_ label: String) {
+        if symbolTable[label] == nil {
+            symbolTable[label] = nil
         }
     }
     func printLabelFile() {
