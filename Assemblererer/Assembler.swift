@@ -18,6 +18,7 @@ class Assembler {
     private var listingFile = ""
     private var errors = 0
     private var start = 0
+    private var hasAStart = false
     private var binaryCount = 0
     var symbolTable: [String : Int?] = [:]
     private var breakPoints: Set<Int> = []
@@ -148,7 +149,9 @@ class Assembler {
                 self.errors += 1
             }
             noErrors = false
-        }
+        } 
+        self.binaryCount = rPC + 1
+        noErrors = hasAStart ? noErrors : false
         do {
             if noErrors {
                 try writeTextFile(self.filePath + self.programName + ".lst", data: self.listingFile)
@@ -166,7 +169,6 @@ class Assembler {
             parseLineTwice(line, &rPC)
         }
         self.listingFile += "\n\n\(self.labelFile)"
-        self.binaryCount = rPC
         do {
             try writeTextFile(self.filePath + self.programName + ".lst", data: self.listingFile)
             try writeTextFile(self.filePath + self.programName + ".bin", data: self.binaryFile)
@@ -198,6 +200,7 @@ class Assembler {
     func parseLineWithoutLabel(_ line: String, _ rPC: inout Int) {
         let tokens = getTokens(line)
         var isAllocate = false
+        var isStart = false
         for token in tokens {
             switch token.type {
             case .LabelDefinition :
@@ -206,12 +209,20 @@ class Assembler {
                 rPC += token.stringValue!.count + 1
             case .Directive :
                 isAllocate = token.directive! == .Allocate
+                isStart = token.directive! == .Start
             case .ImmediateInteger :
                 rPC += isAllocate ? token.intValue! : 1
             case .ImmediateTuple :
                 rPC += 5
-            case .Instruction, .Register, .Label :
+            case .Instruction, .Register :
                 rPC += 1
+            case .Label :
+                if isStart {
+                    self.hasAStart = true
+                }
+                else {
+                    rPC += 1
+                }
             default :
                 break
             }
@@ -265,7 +276,7 @@ class Assembler {
                 binary.append(token.intValue!)
             case .Label :
                 if isStart {
-                    self.start = self.symbolTable[token.stringValue!]!!
+                    self.binaryFile = String(self.binaryCount) + "\n" + String(self.symbolTable[token.stringValue!]!!) + "\n" + self.binaryFile
                     isStart = false
                 }
                 else {
