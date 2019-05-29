@@ -15,55 +15,6 @@ enum StatusFlag {
 
 extension Assembler {
     func debug() {
-        print("Sdb (\(self.pvm.getrPC()))> ", terminator: "")
-        let input = readLine()!
-        var inputChunks = splitStringIntoParts(input)
-        let command = inputChunks.removeFirst()
-        guard let parameters = getVarsforSdbCommand[command] else {
-            print("Invalid command")
-            return
-        }
-        guard let vars = checkSdbParameters(parameters: parameters, inputVars: inputChunks) else {
-            print("Invalid parameters for command \(command)")
-            return
-        }
-        switch command {
-        case "setbk" :
-            setBreakPoint(at: vars[0])
-        case "rmbk" :
-            removeBreakPoint(at: vars[0])
-        case "clrbk" :
-            clearBreakPoints()
-        case "disbk" :
-            self.breakPointsEnabled = false
-        case "enbk" :
-            self.breakPointsEnabled = true
-        case "pbk" :
-            printBreakPoints()
-        case "preg" :
-            printRegisters()
-        case "wreg" :
-            writeToRegister(vars[0], value: vars[1])
-        case "wpc" :
-            writeTorPC(value: vars[0])
-        case "pmem" :
-            printMemoryRange(start: vars[0], end: vars[1])
-        case "deas" :
-            break
-        case "wmem" :
-            writeToMemory(location: vars[0], value: vars[1])
-        case "pst" :
-            printLabelFile()
-        case "g" :
-            setStatusFlag(to: .G)
-        case "s" :
-            setStatusFlag(to: .S)
-        case "exit" :
-            setStatusFlag(to: .Exit)
-        case "help" :
-            printSdbCommands()
-        //never going to be executed
-        default : return
         }
     }
     func checkSdbParameters(parameters: String, inputVars: [String]) -> [Int]? {

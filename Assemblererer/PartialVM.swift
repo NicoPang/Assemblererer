@@ -46,7 +46,6 @@ class FullVM {
         }
     }
     
-    func run() {
         guard self.memorySize > 0 else {
             print("No memory found.")
             return

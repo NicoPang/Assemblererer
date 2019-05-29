@@ -10,11 +10,8 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Assemblererer/PartialVM.swift"
-            timestampString = "580576153.166303"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "426"
-            endingLineNumber = "426"
             landmarkName = "outcr(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -26,11 +23,8 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Assemblererer/PartialVM.swift"
-            timestampString = "580576153.166414"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "183"
-            endingLineNumber = "183"
             landmarkName = "halt()"
             landmarkType = "7">
          </BreakpointContent>

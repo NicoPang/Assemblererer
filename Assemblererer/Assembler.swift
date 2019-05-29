@@ -17,7 +17,6 @@ class Assembler {
     private var labelFile = ""
     private var listingFile = ""
     var symbolTable: [String : Int?] = [:]
-    var start = ""
     private var breakPoints: Set<Int> = []
     private var statusFlag: StatusFlag = .G
     var breakPointsEnabled = true
@@ -128,8 +127,6 @@ class Assembler {
         self.listingFile += "----------Expected directive or instruction\n"
         return false
     }
-    func firstPass() throws -> Bool {
-        let lines = try getLines()
         var noErrors = true
         for line in lines {
             self.listingFile += line + "\n"
@@ -137,37 +134,15 @@ class Assembler {
                 noErrors = false
             }
         }
-        print(self.listingFile)
         return noErrors
     }
-    func secondPass() throws{
-        let lines = try getLines()
-        var labelPlace = 0
         for line in lines {
             print(line)
             labelPlace += parseLineTwice(line, labelPlace)
         }
     }
-    func parseLineTwice(_ line: String, _ labelPlace: Int) -> Int{
-        var tokens = getTokens(line)
-        var count = 0
-        for t in tokens{
-            if t.type == .LabelDefinition{
-                labelFile += "\(tokens[0].stringValue!) \(labelPlace)\n"
-                listingFile += "\(labelPlace): "
             }
-            if t.type == .ImmediateString{
-                binaryFile += "\(tokens[0].stringValue!.count - 1)\n"
-                listingFile += "\(tokens[0].stringValue!.count - 1) "
-                for s in (1...tokens[0].stringValue!.count){
-                    binaryFile += "\(stringToUnicodeValues(String(s)))\n"
-                    count += 1
-                    if s <= 3 {
-                        listingFile += "\(stringToUnicodeValues(String(s))) "
-                    }
                 }
-                for s in tokens[0].stringValue! {
-                    binaryFile += "\(characterToUnivodeValue(s))\n"
                 }
                 listingFile += "\(line)\n"
             }
@@ -195,12 +170,8 @@ class Assembler {
                 listingFile += "\(tokens[0].intValue!) "
                 count += 1
             }
-            if t.type == .Label{
-                //find old place of label
             }
-            //how to deal with register
         }
-        return count
     }
     //other supporting functions
     public func setPath(_ path: String) {
@@ -214,9 +185,6 @@ class Assembler {
         return text
     }
     func getLabel(_ label: String) -> Token {
-        if let directive = stringToDirective(label) {
-            return Token(.Directive, directive: directive)
-        }
         if let command = stringToCommand(label) {
             return Token(.Instruction, int: command.rawValue)
         }
@@ -320,7 +288,6 @@ class Assembler {
             case ("b", .ImmediateInteger) : break
             case ("s", .ImmediateString) : break
             case ("t", .ImmediateTuple) : break
-            default : return false
             }
         }
         return true
