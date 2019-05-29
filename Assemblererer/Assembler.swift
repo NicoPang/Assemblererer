@@ -172,8 +172,8 @@ class Assembler {
                 listingFile += "\(line)\n"
             }
             if t.type == .ImmediateInteger{
-                binaryFile += "\(tokens[0].intValue)\n"
-                listingFile += "\(tokens[0].intValue) \(line)"
+                binaryFile += "\(String(describing: tokens[0].intValue))\n"
+                listingFile += "\(String(describing: tokens[0].intValue)) \(line)"
                 count += 1
                 
             }
@@ -192,7 +192,7 @@ class Assembler {
             }
             if t.type == .Instruction{
                 binaryFile += "\(tokens[0].intValue!)\n"
-                //listingFile += "\(tokens[0].intValue!) "
+                listingFile += "\(tokens[0].intValue!) "
                 count += 1
             }
             if t.type == .Label{
