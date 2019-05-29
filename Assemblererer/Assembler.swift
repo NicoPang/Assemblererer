@@ -16,6 +16,10 @@ class Assembler {
     private var binaryFile = ""
     private var labelFile = ""
     private var listingFile = ""
+    private var errors = 0
+    private var start = 0
+    private var hasAStart = false
+    private var binaryCount = 0
     var symbolTable: [String : Int?] = [:]
     private var breakPoints: Set<Int> = []
     private var statusFlag: StatusFlag = .G
@@ -109,6 +113,7 @@ class Assembler {
         if tokens[0].type == .LabelDefinition {
             if self.symbolTable[tokens[0].stringValue!] != nil {
                 self.listingFile += "----------Cannot have repeated label definitions\n"
+                self.errors += 1
                 return false
             }
             symbolTable[tokens[0].stringValue!] = 1
@@ -125,53 +130,178 @@ class Assembler {
             return checkAsmParameters(vars: vars, tokens: tokens, token: firstToken)
         }
         self.listingFile += "----------Expected directive or instruction\n"
+        self.errors += 1
         return false
     }
+    func firstPass(lines: [String]) -> Bool {
         var noErrors = true
+        var rPC = 0
         for line in lines {
             self.listingFile += line + "\n"
             if !parseLine(line) {
                 noErrors = false
             }
+            parseLineWithoutLabel(line, &rPC)
+        }
+        for (label, labelLocation) in symbolTable {
+            if labelLocation == nil {
+                self.listingFile += "----------Label \(label) not defined\n"
+                self.errors += 1
+                noErrors = false
+            }
+        }
+        self.binaryCount = rPC + 1
+        noErrors = hasAStart ? noErrors : false
+        do {
+            if noErrors {
+                try writeTextFile(self.filePath + self.programName + ".lst", data: self.listingFile)
+            }
+        }
+        catch {
+            print("Unable to write file")
         }
         return noErrors
     }
+    func secondPass(lines: [String]) {
+        var rPC = 0
+        self.listingFile = ""
         for line in lines {
-            print(line)
-            labelPlace += parseLineTwice(line, labelPlace)
+            parseLineTwice(line, &rPC)
+        }
+        self.listingFile += "\nSymbol Table:\n\(self.labelFile)"
+        do {
+            try writeTextFile(self.filePath + self.programName + ".lst", data: self.listingFile)
+            try writeTextFile(self.filePath + self.programName + ".bin", data: self.binaryFile)
+            try writeTextFile(self.filePath + self.programName + ".sym", data: self.labelFile)
+        }
+        catch {
+            print("Unable to write files")
         }
     }
+    func assemble() {
+        self.errors = 0
+        do {
+            print("Assembling file \(self.filePath)\(self.programName).txt")
+            let lines = try getLines()
+            if !firstPass(lines: lines) {
+                print("Assembly found \(self.errors) errors")
+                print("No binary file written")
+                print("See .lst file for errors")
+                return
             }
+            secondPass(lines: lines)
+            print("Assembly was successful.")
+        }
+        catch {
+            print("Cannot read file \(self.filePath)\(self.programName).txt")
+            return
+        }
+    }
+    func parseLineWithoutLabel(_ line: String, _ rPC: inout Int) {
+        let tokens = getTokens(line)
+        var isAllocate = false
+        var isStart = false
+        for token in tokens {
+            switch token.type {
+            case .LabelDefinition :
+                self.symbolTable[token.stringValue!] = rPC
+            case .ImmediateString :
+                rPC += token.stringValue!.count + 1
+            case .Directive :
+                isAllocate = token.directive! == .Allocate
+                isStart = token.directive! == .Start
+            case .ImmediateInteger :
+                rPC += isAllocate ? token.intValue! : 1
+            case .ImmediateTuple :
+                rPC += 5
+            case .Instruction, .Register :
+                rPC += 1
+            case .Label :
+                if isStart {
+                    self.hasAStart = true
                 }
+                else {
+                    rPC += 1
                 }
                 listingFile += "\(line)\n"
-            }
-            if t.type == .ImmediateInteger{
-                binaryFile += "\(String(describing: tokens[0].intValue))\n"
-                listingFile += "\(String(describing: tokens[0].intValue)) \(line)"
-                count += 1
-                
-            }
-            if t.type == .ImmediateInteger{
-                binaryFile += "\(tokens[0].intValue!)\n"
-            }
-            if t.type == .ImmediateTuple{
-                let t = tokens[0].tupleValue!
-                binaryFile += "\(t.currentState)\n"
-                binaryFile += "\(t.inputCharacter)\n"
-                binaryFile += "\(t.newState)\n"
-                binaryFile += "\(t.outputCharacter)\n"
-                binaryFile += "\(t.direction)\n"
-                count += 5
-                //add tuple into listing file
-            }
-            if t.type == .Instruction{
-                binaryFile += "\(tokens[0].intValue!)\n"
-                listingFile += "\(tokens[0].intValue!) "
-                count += 1
-            }
+            default :
+                break
             }
         }
+    }
+    func parseLineTwice(_ line: String, _ rPC: inout Int) {
+        let tokens = getTokens(line)
+        var listingLine = ""
+        var binary: [Int] = []
+        var isAllocate = false
+        var isStart = false
+        listingLine += "\(rPC):"
+        for token in tokens {
+            switch token.type {
+            case .LabelDefinition :
+                labelFile += "\(token.stringValue!) \(rPC)\n"
+            case .ImmediateString :
+                binary.append(token.stringValue!.count)
+                for character in token.stringValue! {
+                    binary.append(characterToUnivodeValue(character))
+                }
+            case .Directive :
+                if token.directive! == .Allocate {
+                    isAllocate = true
+                }
+                else if token.directive! == .Start {
+                    isStart = true
+                }
+            case .ImmediateInteger :
+                if isAllocate {
+                    for _ in 1...token.intValue! {
+                        binary.append(0)
+                    }
+                }
+                else {
+                    binary.append(token.intValue!)
+                }
+            case .ImmediateTuple :
+                let tuple = token.tupleValue!
+                binary.append(tuple.currentState)
+                binary.append(tuple.inputCharacter)
+                binary.append(tuple.newState)
+                binary.append(tuple.outputCharacter)
+                binary.append(tuple.direction)
+            case .Instruction :
+                binary.append(token.intValue!)
+                if Command(rawValue: token.intValue!) == .brk {
+                    self.breakPoints.insert(rPC)
+                }
+            case .Register :
+                binary.append(token.intValue!)
+            case .Label :
+                if isStart {
+                    self.binaryFile = String(self.binaryCount) + "\n" + String(self.symbolTable[token.stringValue!]!!) + "\n" + self.binaryFile
+                    isStart = false
+                }
+                else {
+                    binary.append(self.symbolTable[token.stringValue!]!!)
+                }
+            default :
+                break
+            }
+        }
+        if binary.count > 4 {
+            for i in 0...3 {
+                listingLine += " \(binary[i])"
+            }
+        }
+        else {
+            for b in binary {
+                listingLine += " \(b)"
+            }
+        }
+        self.listingFile += fit(s: listingLine, size: 30, replacement: " ", right: true) + line + "\n"
+        for b in binary {
+            self.binaryFile += String(b) + "\n"
+        }
+        rPC += binary.count
     }
     //other supporting functions
     public func setPath(_ path: String) {
@@ -288,6 +418,8 @@ class Assembler {
             case ("b", .ImmediateInteger) : break
             case ("s", .ImmediateString) : break
             case ("t", .ImmediateTuple) : break
+            default :
+                return false
             }
         }
         return true

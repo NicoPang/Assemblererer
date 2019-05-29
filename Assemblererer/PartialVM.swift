@@ -45,7 +45,16 @@ class FullVM {
             print("File unreadable. Please try a different file.")
         }
     }
+    func initialize() {
+        guard self.memorySize > 0 else {
+            print("No memory found.")
+            return
+        }
+        self.rPC = self.start
+        self.running = true
+    }
     
+    func runWithoutStopping() {
         guard self.memorySize > 0 else {
             print("No memory found.")
             return
@@ -648,6 +657,9 @@ class FullVM {
         for location in start...end {
             print("    \(self.memory[location])")
         }
+    }
+    func getRunningStatus() -> Bool {
+        return self.running
     }
 }
 
