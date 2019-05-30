@@ -21,26 +21,54 @@ class SAPUI {
             case "asm" :
                 if inputChunks.count == 1 {
                     self.assembler.setProgramName(inputChunks[0])
+                    self.assembler.assemble()
+                }
+                else {
+                    print("No program specified/excess parameters")
                 }
             case "run" :
                 if inputChunks.count == 1 {
                     self.assembler.setProgramName(inputChunks[0])
+                    self.assembler.runProgram()
                 }
-                //finish
+                else {
+                    print("No program specified/excess parameters")
+                }
             case "path" :
                 if inputChunks.count == 1 {
                     self.assembler.setPath(inputChunks[0])
                 }
+                else {
+                    print("No path specified/excess parameters")
+                }
             case "printlst" :
-                break
+                if inputChunks.count == 1 {
+                    self.assembler.setProgramName(inputChunks[0])
+                    self.assembler.printListingFile()
+                }
+                else {
+                    print("No program specified/excess parameters")
+                }
             case "printbin" :
-                break
+                if inputChunks.count == 1 {
+                    self.assembler.setProgramName(inputChunks[0])
+                    self.assembler.printBinaryFile()
+                }
+                else {
+                    print("No program specified/excess parameters")
+                }
             case "printsym" :
-                break
+                if inputChunks.count == 1 {
+                    self.assembler.setProgramName(inputChunks[0])
+                    self.assembler.printLabelFile()
+                }
+                else {
+                    print("No program specified/excess parameters")
+                }
             case "quit" :
                 running = false
-            case "help" : printHelp()
-                break
+            case "help" :
+                printHelp()
             default :
                 print("Invalid command")
             }

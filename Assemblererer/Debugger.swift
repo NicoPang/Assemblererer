@@ -17,58 +17,59 @@ extension Assembler {
     func debug() {
         var debugging = true
         while debugging {
-            print("Sdb (\(self.pvm.getrPC()))> ", terminator: "")
+            print("Sdb (\(self.pvm.getrPC()), \(self.pvm.getCommand()))> ", terminator: "")
             let input = readLine()!
             var inputChunks = splitStringIntoParts(input)
             let command = inputChunks.removeFirst()
-            guard let parameters = getVarsforSdbCommand[command] else {
+            if let parameters = getVarsforSdbCommand[command] {
+                if let vars = checkSdbParameters(parameters: parameters, inputVars: inputChunks) {
+                    switch command {
+                    case "setbk" :
+                        setBreakPoint(at: vars[0])
+                    case "rmbk" :
+                        removeBreakPoint(at: vars[0])
+                    case "clrbk" :
+                        clearBreakPoints()
+                    case "disbk" :
+                        self.breakPointsEnabled = false
+                    case "enbk" :
+                        self.breakPointsEnabled = true
+                    case "pbk" :
+                        printBreakPoints()
+                    case "preg" :
+                        printRegisters()
+                    case "wreg" :
+                        writeToRegister(vars[0], value: vars[1])
+                    case "wpc" :
+                        writeTorPC(value: vars[0])
+                    case "pmem" :
+                        printMemoryRange(start: vars[0], end: vars[1])
+                    case "deas" :
+                        deassemble(from: vars[0], to: vars[1])
+                    case "wmem" :
+                        writeToMemory(location: vars[0], value: vars[1])
+                    case "pst" :
+                        printLabelFile()
+                    case "g" :
+                        setStatusFlag(to: .G)
+                        debugging = false
+                    case "s" :
+                        setStatusFlag(to: .S)
+                        debugging = false
+                    case "exit" :
+                        setStatusFlag(to: .Exit)
+                        debugging = false
+                    case "help" :
+                        printSdbCommands()
+                    default : debugging = true
+                    }
+                }
+                else {
+                    print("Invalid parameters for command \(command)")
+                }
+            }
+            else {
                 print("Invalid command")
-                return
-            }
-            guard let vars = checkSdbParameters(parameters: parameters, inputVars: inputChunks) else {
-                print("Invalid parameters for command \(command)")
-                return
-            }
-            switch command {
-            case "setbk" :
-                setBreakPoint(at: vars[0])
-            case "rmbk" :
-                removeBreakPoint(at: vars[0])
-            case "clrbk" :
-                clearBreakPoints()
-            case "disbk" :
-                self.breakPointsEnabled = false
-            case "enbk" :
-                self.breakPointsEnabled = true
-            case "pbk" :
-                printBreakPoints()
-            case "preg" :
-                printRegisters()
-            case "wreg" :
-                writeToRegister(vars[0], value: vars[1])
-            case "wpc" :
-                writeTorPC(value: vars[0])
-            case "pmem" :
-                printMemoryRange(start: vars[0], end: vars[1])
-            case "deas" :
-                break
-            case "wmem" :
-                writeToMemory(location: vars[0], value: vars[1])
-            case "pst" :
-                printLabelFile()
-            case "g" :
-                setStatusFlag(to: .G)
-                debugging = false
-            case "s" :
-                setStatusFlag(to: .S)
-                debugging = false
-            case "exit" :
-                setStatusFlag(to: .Exit)
-                debugging = false
-            case "help" :
-                printSdbCommands()
-            //never going to be executed
-            default : return
             }
         }
     }
@@ -102,6 +103,11 @@ extension Assembler {
                     return nil
                 }
                 outputVars.append(parseAddress(inputVar))
+            case "l" :
+                if !isValidLabel(inputVar) {
+                    return nil
+                }
+                outputVars.append(self.symbolTable[inputVar]!!)
             default : return nil
             }
         }
@@ -123,13 +129,13 @@ extension Assembler {
         return isValidMemoryLocation(a) || isValidLabel(a)
     }
     func isValidLabel(_ l: String) -> Bool {
-        return self.symbolTable[l] != nil
+        return self.symbolTable[l] != nil && self.symbolTable[l]! != nil
     }
     func parseAddress(_ a: String) -> Int {
         if let integer = Int(a) {
             return integer
         }
-        return self.symbolTable[a]!!
+        return self.symbolTable[a.lowercased()]!!
     }
     func printSdbCommands() {
         print("    setbk <address>                      set breakpoint at <address>")
@@ -159,6 +165,7 @@ extension Assembler {
         self.pvm.setrPC(to: value)
     }
     func printRegisters() {
+        print("Registers:")
         for register in 0...9 {
             print("    r\(register): \(self.pvm.getRegisterValue(at: register))")
         }
@@ -171,13 +178,42 @@ extension Assembler {
             print("Invalid range")
             return
         }
+        print("Memory dump:")
         self.pvm.printMemoryRangeFrom(start, to: end)
+    }
+    func deassemble(from startingIndex: Int, to endingIndex: Int) {
+        guard startingIndex <= endingIndex else {
+            print("Invalid range")
+            return
+        }
+        do {
+            let lines = splitStringIntoLines(try self.getListingFile())
+            for line in lines {
+                let memoryLocation = getMemoryLocationForListingLine(listingLine: line)
+                if memoryLocation >= startingIndex && memoryLocation <= endingIndex {
+                    print(line.suffix(line.count - self.listingFilePadding))
+                }
+            }
+        }
+        catch {
+            print("File cannot be found. Please create/assemble program, or change the filepath.")
+        }
+    }
+    func getMemoryLocationForListingLine(listingLine: String) -> Int {
+        guard let indexOfColon = listingLine.firstIndex(of: ":") else {
+            return -1
+        }
+        guard let index = Int(listingLine.prefix(Int(listingLine.distance(from: listingLine.startIndex, to: indexOfColon)))) else {
+            return -1
+        }
+        return index
     }
 }
 //a = address
 //r = register
 //i = any integer
 //m = memory location as an integer
+//l = label
 let getVarsforSdbCommand = [
     "setbk" : "a",
     "rmbk" : "a",
@@ -189,7 +225,7 @@ let getVarsforSdbCommand = [
     "wreg" : "ri",
     "wpc" : "m",
     "pmem" : "aa",
-    "deas" : "aa",
+    "deas" : "ll",
     "wmem" : "ai",
     "pst" : "",
     "s" : "",

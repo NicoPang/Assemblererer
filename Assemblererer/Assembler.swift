@@ -20,6 +20,7 @@ class Assembler {
     private var start = 0
     private var hasAStart = false
     private var binaryCount = 0
+    var listingFilePadding = 30
     var symbolTable: [String : Int?] = [:]
     private var breakPoints: Set<Int> = []
     private var statusFlag: StatusFlag = .G
@@ -116,7 +117,7 @@ class Assembler {
                 self.errors += 1
                 return false
             }
-            symbolTable[tokens[0].stringValue!] = 1
+            symbolTable[tokens[0].stringValue!.lowercased()] = 1
             tokens.removeFirst()
         }
         if tokens[0].type == .Directive {
@@ -153,9 +154,7 @@ class Assembler {
         self.binaryCount = rPC + 1
         noErrors = hasAStart ? noErrors : false
         do {
-            if noErrors {
-                try writeTextFile(self.filePath + self.programName + ".lst", data: self.listingFile)
-            }
+            try writeTextFile(self.filePath + self.programName + ".lst", data: self.listingFile)
         }
         catch {
             print("Unable to write file")
@@ -164,7 +163,6 @@ class Assembler {
     }
     func secondPass(lines: [String]) {
         var rPC = 0
-        self.listingFile = ""
         for line in lines {
             parseLineTwice(line, &rPC)
         }
@@ -187,9 +185,14 @@ class Assembler {
                 print("Assembly found \(self.errors) errors")
                 print("No binary file written")
                 print("See .lst file for errors")
+                resetFiles()
+                resetSymbolTable()
                 return
             }
+            resetFiles()
             secondPass(lines: lines)
+            resetFiles()
+            resetSymbolTable()
             print("Assembly was successful.")
         }
         catch {
@@ -204,7 +207,7 @@ class Assembler {
         for token in tokens {
             switch token.type {
             case .LabelDefinition :
-                self.symbolTable[token.stringValue!] = rPC
+                self.symbolTable[token.stringValue!.lowercased()] = rPC
             case .ImmediateString :
                 rPC += token.stringValue!.count + 1
             case .Directive :
@@ -223,7 +226,6 @@ class Assembler {
                 else {
                     rPC += 1
                 }
-                listingFile += "\(line)\n"
             default :
                 break
             }
@@ -277,11 +279,11 @@ class Assembler {
                 binary.append(token.intValue!)
             case .Label :
                 if isStart {
-                    self.binaryFile = String(self.binaryCount) + "\n" + String(self.symbolTable[token.stringValue!]!!) + "\n" + self.binaryFile
+                    self.binaryFile = String(self.binaryCount) + "\n" + String(self.symbolTable[token.stringValue!.lowercased()]!!) + "\n" + self.binaryFile
                     isStart = false
                 }
                 else {
-                    binary.append(self.symbolTable[token.stringValue!]!!)
+                    binary.append(self.symbolTable[token.stringValue!.lowercased()]!!)
                 }
             default :
                 break
@@ -297,11 +299,15 @@ class Assembler {
                 listingLine += " \(b)"
             }
         }
-        self.listingFile += fit(s: listingLine, size: 30, replacement: " ", right: true) + line + "\n"
+        self.listingFile += fit(s: listingLine, size: self.listingFilePadding, replacement: " ", right: true) + line + "\n"
         for b in binary {
             self.binaryFile += String(b) + "\n"
         }
         rPC += binary.count
+    }
+    //big boi run
+    func run() {
+        
     }
     //other supporting functions
     public func setPath(_ path: String) {
@@ -430,7 +436,42 @@ class Assembler {
         }
     }
     func printLabelFile() {
-        print(self.labelFile)
+        do {
+            let filePath = getFileName() + ".sym"
+            print("Printing \(filePath)")
+            try print(readTextFile(filePath))
+        }
+        catch {
+            print("File cannot be found. Please create/assemble program, or change the filepath.")
+        }
+    }
+    func printListingFile() {
+        do {
+            let filePath = getFileName() + ".lst"
+            print("Printing \(filePath)")
+            try print(readTextFile(filePath))
+        }
+        catch {
+            print("File cannot be found. Please create/assemble program, or change the filepath.")
+        }
+    }
+    func getListingFile() throws -> String {
+        let filePath = getFileName() + ".lst"
+        return try readTextFile(filePath)
+    }
+    func getSymbolFile() throws -> String {
+        let filePath = getFileName() + ".sym"
+        return try readTextFile(filePath)
+    }
+    func printBinaryFile() {
+        do {
+            let filePath = getFileName() + ".bin"
+            print("Printing \(filePath)")
+            try print(readTextFile(filePath))
+        }
+        catch {
+            print("File cannot be found. Please create/assemble program, or change the filepath.")
+        }
     }
     func setStatusFlag(to flag: StatusFlag) {
         self.statusFlag = flag
@@ -461,6 +502,54 @@ class Assembler {
             else {
                 print("\n")
             }
+        }
+    }
+    func getFileName() -> String {
+        return self.filePath + self.programName
+    }
+    func runProgram() {
+        self.statusFlag = .S
+        do {
+            try self.pvm.inputBinaryFromFile(path: self.filePath + self.programName + ".bin")
+        }
+        catch {
+            print("File cannot be found. Please create/assemble program, or change the filepath.")
+        }
+        loadSymbolTable()
+        self.pvm.initialize()
+        while self.pvm.getRunningStatus() {
+            switch self.statusFlag {
+            case .S : debug()
+            case .G :
+                if self.breakPoints.contains(self.pvm.getrPC()) {
+                    debug()
+                }
+            case .Exit :
+                return
+            }
+            self.pvm.executeInstruction()
+        }
+    }
+    func resetFiles() {
+        self.listingFile = ""
+        self.labelFile = ""
+        self.binaryFile = ""
+    }
+    func resetSymbolTable() {
+        self.symbolTable = [:]
+    }
+    func loadSymbolTable() {
+        do {
+            let symbolFile = try getSymbolFile()
+            var lines = splitStringIntoLines(symbolFile)
+            lines.removeLast()
+            for line in lines {
+                let lineChunks = splitStringIntoParts(line)
+                self.symbolTable[lineChunks[0].lowercased()] = Int(lineChunks[1])!
+            }
+        }
+        catch {
+            print("File cannot be found. Please create/assemble program, or change the filepath.")
         }
     }
 }

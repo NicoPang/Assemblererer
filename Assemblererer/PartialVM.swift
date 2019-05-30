@@ -35,14 +35,11 @@ class FullVM {
         self.memory = Array(binary[2...])
     }
     
-    func inputBinaryFromFile(path: String) {
+    func inputBinaryFromFile(path: String) throws {
         do {
             let contents = try String(contentsOfFile: path, encoding: String.Encoding.utf8)
             try inputBinary(splitBinaryFile(contents))
             
-        }
-        catch {
-            print("File unreadable. Please try a different file.")
         }
     }
     func initialize() {
@@ -53,7 +50,7 @@ class FullVM {
         self.rPC = self.start
         self.running = true
     }
-    
+    /*
     func runWithoutStopping() {
         guard self.memorySize > 0 else {
             print("No memory found.")
@@ -64,8 +61,7 @@ class FullVM {
         while self.running {
             self.executeInstruction()
         }
-    }
-    
+    }*/
     func executeInstruction() {
         guard self.rPC < self.memorySize else {
             print("Invalid memory location \(self.memorySize). Program terminated.")
@@ -497,7 +493,7 @@ class FullVM {
         self.rPC += 1
     }
     func brk() {
-        //incomplete
+        self.rPC += 1
     }
     func movrx(_ args: [Int]) {
         self.memory[args[1]] = self.registers[args[0]]
@@ -655,7 +651,7 @@ class FullVM {
     }
     func printMemoryRangeFrom(_ start: Int, to end: Int) {
         for location in start...end {
-            print("    \(self.memory[location])")
+            print("    \(location): \(self.memory[location])")
         }
     }
     func getRunningStatus() -> Bool {

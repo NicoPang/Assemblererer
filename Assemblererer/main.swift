@@ -131,12 +131,8 @@ let tupleProgram = [119, 114, 0,
     39,
     53,
     0]
-var asm = Assembler()
-asm.setPath("/Users/nick/Desktop/")
-asm.setProgramName("Doubles")
-do {
-    asm.assemble()
-}
+var sap = SAPUI()
+sap.run()
 /*var pvm = FullVM()
 pvm.inputBinaryFromFile(path: "/Users/nick/Desktop/turing.bin")
 pvm.run()*/
